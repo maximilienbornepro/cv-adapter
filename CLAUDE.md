@@ -1,5 +1,31 @@
 # Boilerplate Platform - Instructions Claude
 
+## Règles OBLIGATOIRES
+
+### Tests avant commit/push
+
+**OBLIGATOIRE : Toujours exécuter `npm test` AVANT tout commit ou push.**
+
+```bash
+# Lancer les tests
+npm test
+
+# Si les tests passent, alors commit
+git add <fichiers>
+git commit -m "message"
+git push
+```
+
+**Si les tests échouent :**
+1. NE PAS commit/push
+2. Corriger les erreurs
+3. Relancer `npm test`
+4. Commit uniquement quand tous les tests passent
+
+Cette règle s'applique à TOUS les commits, sans exception.
+
+---
+
 ## Mode OpenSpec (désactivable)
 
 > **Par défaut : ACTIVÉ.** Pour désactiver, mettre `OPENSPEC_MODE=off` dans `.claude/config`.
