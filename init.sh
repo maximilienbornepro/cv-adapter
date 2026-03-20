@@ -91,19 +91,19 @@ echo ""
 # Remplacements
 # =============================================================================
 
-# Détecter la commande sed selon OS (macOS vs Linux)
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  SED="sed -i ''"
-else
-  SED="sed -i"
-fi
-
+# Fonction replace compatible macOS et Linux
 replace() {
   local file="$1"
   local from="$2"
   local to="$3"
   if [ -f "$file" ]; then
-    $SED "s|$from|$to|g" "$file"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      # macOS: sed -i nécessite une extension de backup, '' pour pas de backup
+      sed -i '' "s|$from|$to|g" "$file"
+    else
+      # Linux: sed -i fonctionne directement
+      sed -i "s|$from|$to|g" "$file"
+    fi
   fi
 }
 
