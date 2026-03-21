@@ -91,19 +91,15 @@ echo ""
 # Remplacements
 # =============================================================================
 
-# Fonction replace compatible macOS et Linux
+# Fonction replace compatible macOS et Linux (sans fichiers de backup)
 replace() {
   local file="$1"
   local from="$2"
   local to="$3"
   if [ -f "$file" ]; then
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      # macOS: sed -i nécessite une extension de backup, '' pour pas de backup
-      sed -i '' "s|$from|$to|g" "$file"
-    else
-      # Linux: sed -i fonctionne directement
-      sed -i "s|$from|$to|g" "$file"
-    fi
+    local tmp_file
+    tmp_file=$(mktemp)
+    sed "s|$from|$to|g" "$file" > "$tmp_file" && mv "$tmp_file" "$file"
   fi
 }
 
