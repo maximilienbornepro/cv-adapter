@@ -8,184 +8,211 @@ invocation: user
 
 Ce skill utilise l'outil **@fission-ai/openspec** pour un developpement specification-first.
 
-## Prerequis
+## REGLES OBLIGATOIRES
 
-OpenSpec doit etre installe et initialise. Verifier :
+### 1. Creer une branche AVANT tout travail
 
-```bash
-# Verifier l'installation
-openspec --version
-
-# Si non installe
-npm install -g @fission-ai/openspec@latest
-
-# Initialiser dans le projet (si pas deja fait)
-openspec init
-```
-
-## Workflow Principal
-
-### 1. Proposer une feature
-
-Avant d'ecrire du code, creer une specification :
-
-```
-/opsx:propose "description de la fonctionnalite"
-```
-
-Exemple :
-```
-/opsx:propose "Ajouter un module de gestion des utilisateurs avec CRUD complet"
-```
-
-Cela cree un dossier dans `.openspec/` avec :
-- `proposal.md` - Description de la proposition
-- `specs/` - Specifications detaillees
-- `design.md` - Decisions de conception
-- `tasks.md` - Liste des taches a implementer
-
-### 2. Implementer les taches
-
-Une fois la spec approuvee, implementer :
-
-```
-/opsx:apply
-```
-
-Cette commande traite les taches definies dans `tasks.md`.
-
-### 3. Verifier l'implementation
-
-Apres implementation, verifier que tout est conforme :
-
-```
-/opsx:verify
-```
-
-### 4. Archiver le travail termine
-
-Une fois la feature terminee et testee :
-
-```
-/opsx:archive
-```
-
-## Commandes Supplementaires
-
-| Commande | Description |
-|----------|-------------|
-| `/opsx:new` | Creer une nouvelle specification |
-| `/opsx:continue` | Continuer le travail en cours |
-| `/opsx:sync` | Synchroniser les specs avec le code |
-| `/opsx:status` | Voir l'etat actuel |
-
-## Configuration
-
-Configurer votre profil OpenSpec :
+Quand tu recois `/opsx:propose "description"` :
 
 ```bash
-openspec config profile
+# 1. Verifier qu'on n'est pas deja sur une branche feature
+git branch --show-current
+
+# 2. Si on est sur main, creer la branche
+git checkout -b feat/<feature-slug>
 ```
 
-Mettre a jour les slash commands :
+Le `<feature-slug>` est derive de la description (kebab-case, max 30 chars).
 
-```bash
-openspec update
+### 2. Persister l'etat dans progress.md
+
+A CHAQUE changement de phase, mettre a jour `.openspec/changes/<feature>/progress.md` :
+
+```markdown
+# Progress: <feature-name>
+
+## Metadata
+- Branch: feat/<feature-slug>
+- Started: 2024-01-15T10:30:00Z
+- Current Phase: implementation
+
+## Phases
+
+### [x] Proposal (2024-01-15T10:30:00Z)
+- Created proposal.md
+- Defined scope and objectives
+
+### [x] Design (2024-01-15T10:45:00Z)
+- Architecture decisions documented
+- API contracts defined
+
+### [ ] Implementation (in progress)
+- Started: 2024-01-15T11:00:00Z
+- Tasks completed: 2/5
+- Current task: "Creer les routes API"
+
+### [ ] Verification
+### [ ] Testing
+### [ ] Archive
 ```
 
-## Integration avec le Boilerplate
+Ce fichier DOIT etre mis a jour a chaque etape pour survivre a la compaction de conversation.
 
-### Mode OpenSpec (CLAUDE.md)
+## Workflow Detaille
 
-Le mode OpenSpec du boilerplate s'integre avec l'outil :
+### /opsx:propose "description"
 
-```bash
-# Verifier le mode
-cat .claude/config 2>/dev/null | grep OPENSPEC_MODE || echo "OPENSPEC_MODE=on"
+1. **Verifier le mode OpenSpec**
+   ```bash
+   cat .claude/config 2>/dev/null | grep OPENSPEC_MODE || echo "on"
+   ```
+
+2. **Creer la branche** (si on est sur main)
+   ```bash
+   FEATURE_SLUG=$(echo "description" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | cut -c1-30)
+   git checkout -b feat/$FEATURE_SLUG
+   ```
+
+3. **Creer le dossier OpenSpec**
+   ```bash
+   mkdir -p .openspec/changes/$FEATURE_SLUG
+   ```
+
+4. **Generer les fichiers de spec** :
+   - `proposal.md` - Description, objectifs, scope
+   - `specs/` - Specifications techniques detaillees
+   - `design.md` - Decisions d'architecture
+   - `tasks.md` - Liste des taches numerotees
+
+5. **Initialiser progress.md** avec la phase "Proposal" completee
+
+6. **Afficher le resume** et demander validation
+
+### /opsx:apply
+
+1. **Lire progress.md** pour reprendre le contexte
+2. **Lire tasks.md** pour voir les taches restantes
+3. **Mettre a jour progress.md** : phase = "Implementation"
+4. **Executer les taches** une par une
+5. **Mettre a jour progress.md** apres chaque tache completee
+
+### /opsx:verify
+
+1. **Lire progress.md** et les specs
+2. **Verifier** que l'implementation correspond aux specs
+3. **Mettre a jour progress.md** : phase = "Verification"
+4. **Lister** les ecarts trouves ou confirmer la conformite
+
+### /opsx:continue
+
+1. **Lire progress.md** pour connaitre l'etat actuel
+2. **Reprendre** la ou on en etait
+3. Utile apres une compaction de conversation
+
+### /opsx:status
+
+1. **Lire progress.md**
+2. **Afficher** un resume de l'etat actuel :
+   - Branche courante
+   - Phase en cours
+   - Taches completees/restantes
+   - Derniere activite
+
+### /opsx:archive
+
+1. **Verifier** que les tests passent : `npm test`
+2. **Mettre a jour progress.md** : phase = "Archive", status = "completed"
+3. **Optionnel** : deplacer vers `.openspec/archive/`
+
+## Structure des Fichiers
+
+```
+.openspec/
+├── config.yaml
+└── changes/
+    └── <feature-slug>/
+        ├── proposal.md      # Description et scope
+        ├── specs/           # Specifications detaillees
+        │   ├── api.md
+        │   └── data.md
+        ├── design.md        # Decisions d'architecture
+        ├── tasks.md         # Liste des taches
+        └── progress.md      # ETAT PERSISTANT (survit a la compaction)
 ```
 
-Quand le mode est **ON** :
-- Toujours utiliser `/opsx:propose` avant d'implementer
-- Travailler sur des branches dediees (`feat/`, `fix/`, `refactor/`)
-- Ne jamais commit directement sur `main`
-- Inclure les tests unitaires
+## Format de progress.md
 
-### Structure du projet avec OpenSpec
+```markdown
+# Progress: <feature-name>
 
-```
-projet/
-├── .openspec/              # Dossier OpenSpec
-│   ├── config.yaml         # Configuration
-│   └── changes/            # Historique des changements
-│       └── <feature>/
-│           ├── proposal.md
-│           ├── specs/
-│           ├── design.md
-│           └── tasks.md
-├── specs/                  # Specs manuelles (optionnel)
-└── ...
-```
+## Metadata
+- Branch: feat/<slug>
+- Started: <ISO8601>
+- Current Phase: proposal|design|implementation|verification|testing|archive
+- Status: in_progress|blocked|completed
 
-### Workflow complet pour une nouvelle feature
+## Phases
 
-```bash
-# 1. Creer une branche
-git checkout -b feat/ma-feature
+### [x] Proposal (<timestamp>)
+- <notes>
 
-# 2. Proposer la spec (dans Claude Code)
-/opsx:propose "Description de ma feature"
+### [x] Design (<timestamp>)
+- <notes>
 
-# 3. Revoir et ajuster la spec generee
-# Editer .openspec/changes/<feature>/proposal.md si necessaire
+### [ ] Implementation
+- Started: <timestamp>
+- Tasks: X/Y completed
+- Current: "<task description>"
+- Notes:
+  - <any blockers or decisions>
 
-# 4. Implementer
-/opsx:apply
+### [ ] Verification
+### [ ] Testing
+### [ ] Archive
 
-# 5. Verifier
-/opsx:verify
-
-# 6. Tester
-npm test
-
-# 7. Commit et push
-git add .
-git commit -m "feat: ajouter ma-feature"
-git push -u origin feat/ma-feature
-
-# 8. Archiver
-/opsx:archive
+## History
+- <timestamp>: <action taken>
+- <timestamp>: <action taken>
 ```
 
-## Bonnes Pratiques
+## Reprise apres Compaction
 
-1. **Spec d'abord** : Toujours `/opsx:propose` avant d'ecrire du code
-2. **Revue humaine** : Relire la spec generee avant `/opsx:apply`
-3. **Tests inclus** : Les specs doivent definir les tests requis
-4. **Branches isolees** : Une branche par feature
-5. **Archivage** : Utiliser `/opsx:archive` pour garder un historique propre
+Si la conversation est compactee et tu perds le contexte :
 
-## Troubleshooting
+1. **Lire progress.md** en premier
+2. **Lire tasks.md** pour les taches
+3. **Reprendre** exactement ou tu en etais
 
-### OpenSpec non reconnu
+Le fichier progress.md est la SOURCE DE VERITE pour l'etat du travail.
 
-```bash
-# Reinstaller
-npm install -g @fission-ai/openspec@latest
+## Integration Git
 
-# Verifier le PATH
-which openspec
-```
+| Phase | Action Git |
+|-------|------------|
+| propose | `git checkout -b feat/<slug>` |
+| apply | commits incrementaux |
+| verify | - |
+| archive | PR ready, merge vers main |
 
-### Reinitialiser OpenSpec
+## Checklist par Phase
 
-```bash
-# Supprimer et reinitialiser
-rm -rf .openspec
-openspec init
-```
+### Proposal
+- [ ] Branche creee
+- [ ] proposal.md ecrit
+- [ ] tasks.md defini
+- [ ] progress.md initialise
 
-### Mettre a jour les commandes
+### Implementation
+- [ ] Chaque tache = 1 commit
+- [ ] Tests ecrits
+- [ ] progress.md mis a jour
 
-```bash
-openspec update
-```
+### Verification
+- [ ] Specs respectees
+- [ ] Tests passent
+- [ ] Code review ready
+
+### Archive
+- [ ] `npm test` passe
+- [ ] Documentation a jour
+- [ ] PR cree ou merge effectue

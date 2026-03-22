@@ -106,29 +106,37 @@ Quand le mode OpenSpec est activé, toute modification fonctionnelle **DOIT** :
    ```
    /opsx:propose "description de la fonctionnalité"
    ```
-   Cela crée un dossier `.openspec/changes/<feature>/` avec proposal.md, specs/, design.md, tasks.md
+   Cela :
+   - Crée automatiquement une branche `feat/<feature-slug>`
+   - Crée un dossier `.openspec/changes/<feature>/` avec proposal.md, specs/, design.md, tasks.md
+   - Initialise `progress.md` pour persister l'état
 
-2. **Être développée sur une branche dédiée**
-   - Nommage : `feat/<feature>`, `fix/<feature>`, `refactor/<feature>`
-   - **JAMAIS de commit direct sur `main`** en mode OpenSpec
-   - Créer la branche : `git checkout -b feat/<feature>`
-
-3. **Implémenter via OpenSpec**
+2. **Implémenter via OpenSpec**
    ```
    /opsx:apply
    ```
 
-4. **Vérifier l'implémentation**
+3. **Vérifier l'implémentation**
    ```
    /opsx:verify
    ```
 
-5. **Inclure les tests unitaires** correspondants (voir section Tests)
+4. **Inclure les tests unitaires** correspondants (voir section Tests)
 
-6. **Archiver une fois terminé**
+5. **Archiver une fois terminé**
    ```
    /opsx:archive
    ```
+
+### Persistance de l'état (progress.md)
+
+Le fichier `.openspec/changes/<feature>/progress.md` stocke :
+- La branche associée
+- La phase courante (proposal, design, implementation, verification, archive)
+- Les tâches complétées/restantes
+- L'historique des actions
+
+**Ce fichier survit à la compaction de conversation.** Utiliser `/opsx:continue` pour reprendre le travail.
 
 ### Commandes OpenSpec
 
