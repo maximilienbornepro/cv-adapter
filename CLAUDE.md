@@ -26,6 +26,65 @@ Cette règle s'applique à TOUS les commits, sans exception.
 
 ---
 
+## Synchronisation avec le Boilerplate Upstream
+
+Ce projet peut être utilisé comme base pour d'autres projets. Le script `init.sh` configure automatiquement les remotes Git pour permettre de récupérer les mises à jour du boilerplate.
+
+### Architecture des remotes
+
+Après initialisation, le projet a deux remotes :
+
+| Remote | Usage |
+|--------|-------|
+| `origin` | Votre dépôt projet (push/pull quotidien) |
+| `boilerplate` | Le boilerplate source (pull des mises à jour) |
+
+### Récupérer les mises à jour
+
+```bash
+# Voir les mises à jour disponibles (sans appliquer)
+./sync-boilerplate.sh --dry-run
+
+# Appliquer les mises à jour
+./sync-boilerplate.sh
+```
+
+### Ce qui est synchronisé
+
+Le merge récupère **toutes** les modifications du boilerplate :
+- Design system (`packages/shared/`)
+- Scripts de déploiement (`deploy.sh`, `deploy-remote.sh`)
+- Configuration Vitest, Docker, etc.
+- Documentation (`CLAUDE.md`)
+
+### Gestion des conflits
+
+Si des conflits surviennent lors du merge :
+
+```bash
+# 1. Résoudre les conflits dans les fichiers marqués
+# 2. Ajouter les fichiers résolus
+git add <fichiers-résolus>
+
+# 3. Terminer le merge
+git commit
+
+# 4. Vérifier que tout fonctionne
+npm test
+
+# 5. Pousser
+git push
+```
+
+### Bonnes pratiques
+
+- **Ne pas modifier** les fichiers du boilerplate core (`packages/shared/`) dans vos projets dérivés, sinon vous aurez des conflits
+- Créer vos modules dans `apps/platform/src/modules/` (pas de conflit)
+- Synchroniser régulièrement (1x/semaine) pour éviter les gros écarts
+- Toujours lancer `npm test` après un sync
+
+---
+
 ## Mode OpenSpec (désactivable)
 
 > **Par défaut : ACTIVÉ.** Pour désactiver, mettre `OPENSPEC_MODE=off` dans `.claude/config`.
