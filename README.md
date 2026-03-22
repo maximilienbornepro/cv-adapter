@@ -175,7 +175,7 @@ cd /opt/apps/boilerplate
 
 1. **Frontend** : `App.tsx`, types, services API, composants, styles, tests
 2. **Backend** : `index.ts`, routes, dbService, tests
-3. **Config** : router.tsx, vite.config.ts, SharedNav/constants.ts, gateway/constants.ts, AVAILABLE_APPS
+3. **Config** : router.tsx, vite.config.ts, SharedNav/constants.ts, AVAILABLE_APPS
 4. **Database** : `database/init/XX_<module>_schema.sql`
 
 Checklist détaillée dans `CLAUDE.md`.

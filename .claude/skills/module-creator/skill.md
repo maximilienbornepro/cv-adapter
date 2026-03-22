@@ -621,7 +621,7 @@ app.use('/<module>/api', create<Module>Router());
 
 #### 4.4 SharedNav constants `packages/shared/src/components/SharedNav/constants.ts`
 
-Ajouter dans `APPS` :
+**SOURCE UNIQUE** pour la navigation ET la landing page. Ajouter dans `APPS` :
 
 ```typescript
 {
@@ -635,11 +635,9 @@ Ajouter dans `APPS` :
 },
 ```
 
-#### 4.5 Gateway constants `apps/platform/src/modules/gateway/constants.ts`
+> Note: Ce fichier est importe par SharedNav et LandingPage. Un seul endroit a modifier.
 
-Ajouter dans `APPS` (meme structure que SharedNav).
-
-#### 4.6 AVAILABLE_APPS dans gateway.ts
+#### 4.5 AVAILABLE_APPS dans gateway.ts
 
 Dans `apps/platform/servers/unified/src/modules/gateway.ts`, ajouter l'ID du module dans `AVAILABLE_APPS` :
 

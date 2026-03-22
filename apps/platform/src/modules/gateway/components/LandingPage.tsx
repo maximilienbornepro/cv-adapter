@@ -1,4 +1,4 @@
-import { APPS, CATEGORIES } from '../constants';
+import { APPS, CATEGORIES } from '@boilerplate/shared/components';
 import { useAuth } from '../context/AuthContext';
 
 interface LandingPageProps {

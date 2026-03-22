@@ -389,8 +389,7 @@ Si un test échoue, le déploiement est **annulé**. Pas de contournement possib
   await init<Module>();
   app.use('/<module>/api', create<Module>Router());
   ```
-- [ ] `SharedNav/constants.ts` - Ajouter l'app
-- [ ] `gateway/constants.ts` - Ajouter pour landing page
+- [ ] `SharedNav/constants.ts` - Ajouter l'app (source unique pour nav ET landing page)
 - [ ] `AVAILABLE_APPS` dans `gateway.ts` - Ajouter l'ID du module
 
 #### 4. Tests
