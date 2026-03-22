@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Background -->
+  <rect width="128" height="128" rx="16" fill="#0a0a0a"/>
+
+  <!-- CV Document -->
+  <rect x="24" y="16" width="80" height="96" rx="4" fill="#1a1a1a" stroke="#06b6d4" stroke-width="2"/>
+
+  <!-- Photo placeholder -->
+  <circle cx="48" cy="40" r="12" fill="#333" stroke="#06b6d4" stroke-width="1"/>
+
+  <!-- Text lines -->
+  <rect x="68" y="32" width="28" height="4" rx="1" fill="#06b6d4"/>
+  <rect x="68" y="40" width="20" height="3" rx="1" fill="#525252"/>
+  <rect x="68" y="47" width="24" height="3" rx="1" fill="#525252"/>
+
+  <!-- Content lines -->
+  <rect x="32" y="60" width="64" height="3" rx="1" fill="#404040"/>
+  <rect x="32" y="68" width="56" height="3" rx="1" fill="#404040"/>
+  <rect x="32" y="76" width="60" height="3" rx="1" fill="#404040"/>
+  <rect x="32" y="84" width="48" height="3" rx="1" fill="#404040"/>
+  <rect x="32" y="92" width="52" height="3" rx="1" fill="#404040"/>
+  <rect x="32" y="100" width="40" height="3" rx="1" fill="#404040"/>
+
+  <!-- Adapter arrow -->
+  <path d="M108 64 L118 64 L118 58 L128 66 L118 74 L118 68 L108 68 Z" fill="#10b981"/>
+</svg>

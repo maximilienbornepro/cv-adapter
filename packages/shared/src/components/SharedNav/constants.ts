@@ -1,5 +1,5 @@
 export const NAV_HEIGHT = 50;
-export const THEME_STORAGE_KEY = 'boilerplate-theme';
+export const THEME_STORAGE_KEY = 'cv-adapter-theme';
 
 export type AppCategory = 'main';
 
@@ -32,6 +32,15 @@ export const APPS: AppInfo[] = [
     color: '#6366f1',
     gradientEnd: '#8b5cf6',
     path: '/products',
+    category: 'main',
+  },
+  {
+    id: 'cv-adapter',
+    name: 'CV Adapter',
+    description: 'Gestion et adaptation de CV',
+    color: '#10b981',
+    gradientEnd: '#059669',
+    path: '/cv-adapter',
     category: 'main',
   },
 ];

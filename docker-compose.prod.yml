@@ -2,7 +2,7 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:16
-    container_name: boilerplate-postgres
+    container_name: cv-adapter-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -24,7 +24,7 @@ services:
     build:
       context: .
       dockerfile: apps/platform/servers/unified/Dockerfile.prod
-    container_name: boilerplate-unified-server
+    container_name: cv-adapter-unified-server
     environment:
       - NODE_ENV=production
       - UNIFIED_PORT=3010
@@ -48,7 +48,7 @@ services:
     build:
       context: .
       dockerfile: apps/platform/Dockerfile.prod
-    container_name: boilerplate-platform-client
+    container_name: cv-adapter-platform-client
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/"]
       interval: 30s

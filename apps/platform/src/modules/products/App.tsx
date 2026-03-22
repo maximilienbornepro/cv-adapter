@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Layout, ToastContainer, ConfirmModal, ModuleHeader } from '@boilerplate/shared/components';
-import type { ToastData } from '@boilerplate/shared/components';
+import { Layout, ToastContainer, ConfirmModal, ModuleHeader } from '@cv-adapter/shared/components';
+import type { ToastData } from '@cv-adapter/shared/components';
 import { ProductList } from './components/ProductList/ProductList';
 import { ProductForm } from './components/ProductForm/ProductForm';
 import type { Product, ProductFormData } from './types';

@@ -1,11 +1,12 @@
 import { lazy, Suspense, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { LoadingSpinner, SharedNav } from '@boilerplate/shared/components';
+import { LoadingSpinner, SharedNav } from '@cv-adapter/shared/components';
 import { LandingPage } from './modules/gateway/components/LandingPage';
 import { AdminPage } from './modules/gateway/components/AdminPage';
 
 // Lazy load modules
 const ProductsApp = lazy(() => import('./modules/products/App'));
+const CvAdapterApp = lazy(() => import('./modules/cv-adapter/App'));
 
 interface User {
   id: number;
@@ -78,6 +79,14 @@ export function AppRouter({ onNavigate, user, onLogout }: AppRouterProps) {
         element={
           <SuspenseWrapper>
             <ProductsApp onNavigate={onNavigate} />
+          </SuspenseWrapper>
+        }
+      />
+      <Route
+        path="/cv-adapter/*"
+        element={
+          <SuspenseWrapper>
+            <CvAdapterApp onNavigate={onNavigate} />
           </SuspenseWrapper>
         }
       />

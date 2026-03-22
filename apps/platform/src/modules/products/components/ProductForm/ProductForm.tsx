@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal } from '@boilerplate/shared/components';
+import { Modal } from '@cv-adapter/shared/components';
 import type { Product, ProductFormData } from '../../types';
 import styles from './ProductForm.module.css';
 
