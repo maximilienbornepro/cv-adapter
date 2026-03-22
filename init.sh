@@ -129,25 +129,13 @@ replace "apps/platform/servers/unified/package.json" \
 
 # --- Imports @boilerplate/shared -> @PROJECT_SLUG/shared dans les sources ---
 log "Imports TypeScript..."
-FILES_WITH_IMPORTS=(
-  "apps/platform/src/main.tsx"
-  "apps/platform/src/App.tsx"
-  "apps/platform/src/router.tsx"
-  "apps/platform/src/modules/gateway/components/AdminPage.tsx"
-  "apps/platform/src/modules/products/App.tsx"
-  "apps/platform/src/modules/products/components/ProductForm/ProductForm.tsx"
-  "apps/platform/servers/unified/src/index.ts"
-  "apps/platform/servers/unified/src/modules/gateway.ts"
-  "apps/platform/servers/unified/src/modules/products/routes.ts"
-)
-for f in "${FILES_WITH_IMPORTS[@]}"; do
-  replace "$f" "@boilerplate/shared" "@${PROJECT_SLUG}/shared"
-done
 
-# Chercher tous les autres fichiers avec @boilerplate/shared
-while IFS= read -r -d '' file; do
-  replace "$file" "@boilerplate/shared" "@${PROJECT_SLUG}/shared"
-done < <(grep -rl "@boilerplate/shared" . --include="*.ts" --include="*.tsx" --include="*.js" --include="*.json" --exclude-dir=node_modules -Z 2>/dev/null)
+# Utiliser find pour trouver TOUS les fichiers avec @boilerplate/shared (plus fiable que grep -rl sur macOS)
+while IFS= read -r file; do
+  if [ -f "$file" ] && grep -q "@boilerplate/shared" "$file" 2>/dev/null; then
+    replace "$file" "@boilerplate/shared" "@${PROJECT_SLUG}/shared"
+  fi
+done < <(find . -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.json" \) ! -path "*/node_modules/*" ! -path "*/.git/*" 2>/dev/null)
 
 # --- vite.config.ts ---
 log "vite.config.ts..."
