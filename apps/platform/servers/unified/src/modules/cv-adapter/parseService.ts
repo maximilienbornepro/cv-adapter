@@ -93,7 +93,7 @@ export async function parseCV(buffer: Buffer, type: 'pdf' | 'docx'): Promise<CVD
     const data = await pdf(buffer);
     text = data.text;
 
-    // If very little text extracted, it might be a scanned PDF
+    // If very little text extracted, it might be a scanned PDF - use vision parsing
     if (text.trim().length < 100) {
       return parseCVWithVision(buffer);
     }
@@ -145,22 +145,22 @@ export async function parseCVWithText(text: string): Promise<CVData> {
   }
 }
 
-export async function parseCVWithVision(buffer: Buffer): Promise<CVData> {
-  // Convert PDF to base64 for vision API
+// Vision-based PDF parsing for scanned PDFs using Claude's document type
+async function parseCVWithVision(buffer: Buffer): Promise<CVData> {
   const base64 = buffer.toString('base64');
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 4096,
+    max_tokens: 8000,
     messages: [
       {
         role: 'user',
         content: [
           {
-            type: 'image',
+            type: 'document',
             source: {
               type: 'base64',
-              media_type: 'application/pdf',
+              media_type: 'application/pdf' as const,
               data: base64,
             },
           },
@@ -194,7 +194,7 @@ export async function parseCVWithVision(buffer: Buffer): Promise<CVData> {
     const parsed = JSON.parse(jsonText.trim());
     return validateAndCleanCVData(parsed);
   } catch (err) {
-    console.error('[CV-Adapter] Failed to parse Vision response:', content.text);
+    console.error('[CV-Adapter] Failed to parse AI vision response:', content.text);
     throw new Error('Impossible d\'analyser le CV');
   }
 }
