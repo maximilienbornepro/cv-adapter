@@ -459,7 +459,12 @@ Si un test échoue, le déploiement est **annulé**. Pas de contournement possib
 
 #### 5. Database
 
-- [ ] `database/init/XX_<module>_schema.sql` - Schéma SQL
+Structure des fichiers SQL :
+- `01_create_databases.sql` - Creation base (NE PAS MODIFIER)
+- `02_platform_schema.sql` - Tables plateforme (NE PAS MODIFIER)
+- `03_<module>_schema.sql` et suivants - Tables modules
+
+- [ ] `database/init/XX_<module>_schema.sql` - Schema SQL du module (XX = 03, 04, 05...)
 
 ### Pattern API Service
 

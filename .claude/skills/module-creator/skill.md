@@ -27,10 +27,19 @@ Avant de commencer, collecter :
 
 ### 1. Schema SQL
 
-Creer `database/init/XX_<module>_schema.sql` :
+**Structure des fichiers SQL :**
+- `01_create_databases.sql` - Creation de la base (NE PAS MODIFIER)
+- `02_platform_schema.sql` - Tables plateforme: users, user_permissions (NE PAS MODIFIER)
+- `03_<module>_schema.sql` - Tables du module (a creer)
+
+Creer `database/init/XX_<module>_schema.sql` (XX = numero sequentiel, ex: 03, 04, 05...) :
 
 ```sql
+-- =============================================================================
 -- Module: <MODULE_NAME>
+-- Tables specifiques au module <module>
+-- =============================================================================
+
 \c app;
 
 CREATE TABLE IF NOT EXISTS <module_name_plural> (
@@ -43,6 +52,8 @@ CREATE TABLE IF NOT EXISTS <module_name_plural> (
 
 CREATE INDEX IF NOT EXISTS idx_<module>_created ON <module_name_plural>(created_at);
 ```
+
+> **Note** : Chaque module a son propre fichier SQL. Ne jamais modifier `02_platform_schema.sql`.
 
 ### 2. Backend
 
