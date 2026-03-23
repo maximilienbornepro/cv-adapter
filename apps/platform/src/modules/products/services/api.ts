@@ -54,3 +54,9 @@ export async function deleteProduct(id: number): Promise<void> {
     throw new Error(data.error || 'Erreur lors de la suppression');
   }
 }
+
+// Public embed endpoint (no auth required)
+export async function fetchProductEmbed(id: string): Promise<Product> {
+  const response = await fetch(`${API_BASE}/embed/${id}`);
+  return handleResponse<Product>(response);
+}

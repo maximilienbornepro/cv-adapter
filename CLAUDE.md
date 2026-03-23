@@ -476,6 +476,79 @@ export function createRoutes(): Router {
 }
 ```
 
+## Mode Embed (acces public)
+
+Le mode embed permet d'acceder a un element d'un module sans authentification, ideal pour l'integration dans des iframes ou le partage de liens publics.
+
+### Comment ca fonctionne
+
+1. **Detection** : L'URL contient `?embed=<ID>` (ex: `/products?embed=123`)
+2. **Skip auth** : `App.tsx` detecte le parametre et bypass l'AuthProvider
+3. **Vue minimale** : Affiche un composant `EmbedView` sans navigation
+4. **Route publique** : Le backend expose `/embed/:id` sans authMiddleware
+
+### Activer l'embed pour un module
+
+Lors de la creation d'un module avec `/module-creator`, repondre **oui** a la question "Activer le mode embed public ?".
+
+Cela genere automatiquement :
+- `components/EmbedView/EmbedView.tsx` - Composant de vue embed
+- `components/EmbedView/EmbedView.css` - Styles minimal (dark/light toggle)
+- Route publique `/embed/:id` dans le backend
+- Fonction `fetchEmbed()` dans `services/api.ts`
+
+### Structure du mode embed
+
+```
+Frontend (App.tsx)
+  |
+  +-- detecte ?embed=ID dans URL
+  |
+  +-- Si embed: <AppRouter embedMode embedId={id} />
+  |
+  +-- Router redirige vers <ModuleApp embedMode embedId={id} />
+  |
+  +-- ModuleApp affiche <EmbedView itemId={id} />
+
+Backend (routes.ts)
+  |
+  +-- GET /embed/:id (PUBLIC, avant authMiddleware)
+  |
+  +-- Retourne les donnees de l'item
+```
+
+### Exemple d'URL embed
+
+```
+# Acces normal (authentifie)
+https://app.example.com/products
+
+# Acces embed (public)
+https://app.example.com/products?embed=42
+
+# Dans une iframe
+<iframe src="https://app.example.com/products?embed=42" />
+```
+
+### Bouton "Copier lien embed"
+
+Pour ajouter un bouton de copie du lien embed dans la liste ou le detail :
+
+```typescript
+const copyEmbedLink = (item: Entity) => {
+  const url = `${window.location.origin}/<module>?embed=${item.id}`;
+  navigator.clipboard.writeText(url);
+  addToast({ type: 'success', message: 'Lien embed copie !' });
+};
+```
+
+### Securite
+
+- Les routes embed sont **read-only** (GET uniquement)
+- Seules les donnees publiques doivent etre exposees
+- L'ID doit etre difficile a deviner si les donnees sont sensibles (utiliser UUID)
+- Pas de tokens d'authentification dans les URLs embed
+
 ## Conventions
 
 ### Langue

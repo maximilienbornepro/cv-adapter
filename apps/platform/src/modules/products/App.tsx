@@ -3,11 +3,24 @@ import { Layout, ToastContainer, ConfirmModal, ModuleHeader } from '@boilerplate
 import type { ToastData } from '@boilerplate/shared/components';
 import { ProductList } from './components/ProductList/ProductList';
 import { ProductForm } from './components/ProductForm/ProductForm';
+import { EmbedView } from './components/EmbedView/EmbedView';
 import type { Product, ProductFormData } from './types';
 import * as api from './services/api';
 import './index.css';
 
-export default function ProductsApp({ onNavigate }: { onNavigate?: (path: string) => void }) {
+interface ProductsAppProps {
+  onNavigate?: (path: string) => void;
+  embedMode?: boolean;
+  embedId?: string;
+}
+
+export default function ProductsApp({ onNavigate, embedMode, embedId }: ProductsAppProps) {
+  // Embed mode: render minimal view
+  if (embedMode && embedId) {
+    return <EmbedView itemId={embedId} />;
+  }
+
+  // Normal mode: full app with layout
   return (
     <Layout appId="products" variant="full-width" onNavigate={onNavigate}>
       <AppContent onNavigate={onNavigate} />

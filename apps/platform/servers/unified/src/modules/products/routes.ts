@@ -10,7 +10,24 @@ export async function initDb() {
 export function createProductsRoutes(): Router {
   const router = Router();
 
-  // All routes require authentication
+  // Public embed route (NO AUTH REQUIRED)
+  router.get('/embed/:id', asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'ID invalide' });
+      return;
+    }
+
+    const product = await db.getProductById(id);
+    if (!product) {
+      res.status(404).json({ error: 'Produit non trouve' });
+      return;
+    }
+
+    res.json(product);
+  }));
+
+  // All other routes require authentication
   router.use(authMiddleware);
 
   // List products
