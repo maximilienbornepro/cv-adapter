@@ -10,6 +10,20 @@ Ce skill utilise l'outil **@fission-ai/openspec** pour un developpement specific
 
 ## REGLES OBLIGATOIRES
 
+### 0. Detection automatique des anomalies
+
+**IMPORTANT** : Si l'utilisateur signale un probleme, bug, ou demande une correction, tu DOIS automatiquement :
+
+1. Detecter qu'il s'agit d'une anomalie (mots cles : "bug", "erreur", "ne marche pas", "corrige", "fix", "probleme", "anomalie", "ca plante", "crash", etc.)
+2. Lancer le workflow `/opsx:fix` SANS attendre que l'utilisateur le demande explicitement
+3. Creer le change `fix-<slug>` et la branche appropriee
+
+**Exemples de detection :**
+- "Le login ne marche pas" → `/opsx:fix "login-broken"`
+- "J'ai une erreur sur le formulaire" → `/opsx:fix "form-error"`
+- "Corrige le bug de validation" → `/opsx:fix "validation-bug"`
+- "Ca plante quand je clique" → `/opsx:fix "click-crash"`
+
 ### 1. Creer une branche AVANT tout travail
 
 Quand tu recois `/opsx:propose "description"` :
@@ -159,6 +173,89 @@ Ce fichier DOIT etre mis a jour a chaque etape pour survivre a la compaction de 
 
 7. **Afficher le resume** et demander validation
 
+### /opsx:fix "description"
+
+Creer un change pour une **anomalie/bug**. Le change est nomme `fix-<slug>`.
+
+1. **Identifier la branche parente**
+   ```bash
+   PARENT_BRANCH=$(git branch --show-current)
+   # Si on est sur main, parent = main
+   # Si on est sur feat/user-management, parent = feat/user-management
+   ```
+
+2. **Creer la branche fix**
+   ```bash
+   FIX_SLUG=$(echo "description" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | cut -c1-30)
+   # Branche nommee : fix/<parent>--<fix-slug> ou fix/<fix-slug> si parent=main
+   if [ "$PARENT_BRANCH" = "main" ]; then
+     git checkout -b fix/$FIX_SLUG
+   else
+     PARENT_SHORT=$(echo "$PARENT_BRANCH" | sed 's/feat\///')
+     git checkout -b fix/${PARENT_SHORT}--${FIX_SLUG}
+   fi
+   ```
+
+3. **Creer le dossier OpenSpec**
+   ```bash
+   mkdir -p .openspec/changes/fix-$FIX_SLUG
+   ```
+
+4. **Generer les fichiers de spec** :
+   - `proposal.md` - Description du bug, comportement actuel vs attendu
+   - `design.md` - Diagramme du flux bugue + flux corrige
+   - `tasks.md` - Etapes de correction
+
+5. **Diagrammes obligatoires pour un fix** :
+   - Sequence "Flux actuel (bug)" - ce qui se passe actuellement
+   - Sequence "Flux attendu (fix)" - ce qui devrait se passer
+
+6. **Initialiser progress.md** avec :
+   - Parent branch reference
+   - Type: fix
+
+**Exemple de design.md pour un fix :**
+
+```markdown
+# Design: fix-login-validation
+
+## Bug Description
+
+- **Comportement actuel** : Le formulaire accepte des emails invalides
+- **Comportement attendu** : Validation email cote client et serveur
+
+## Sequence Diagrams
+
+### Flux actuel (BUG)
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as LoginForm
+    participant A as POST /auth/login
+
+    U->>F: Email "invalid"
+    U->>F: Click Login
+    F->>A: { email: "invalid" }
+    A-->>F: 500 Internal Error
+    F-->>U: Erreur incomprehensible
+```
+
+### Flux corrige (FIX)
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as LoginForm
+    participant A as POST /auth/login
+
+    U->>F: Email "invalid"
+    U->>F: Click Login
+    F->>F: Validation regex
+    F-->>U: "Email invalide"
+```
+```
+
 ### /opsx:apply
 
 1. **Lire progress.md** pour reprendre le contexte
@@ -170,9 +267,22 @@ Ce fichier DOIT etre mis a jour a chaque etape pour survivre a la compaction de 
 ### /opsx:verify
 
 1. **Lire progress.md** et les specs
-2. **Verifier** que l'implementation correspond aux specs
-3. **Mettre a jour progress.md** : phase = "Verification"
-4. **Lister** les ecarts trouves ou confirmer la conformite
+
+2. **Verifier les diagrammes dans design.md** :
+   - Si diagrammes absents → **LES GENERER MAINTENANT**
+   - Si diagrammes incomplets → les completer
+   - Les diagrammes doivent correspondre a l'implementation reelle
+
+3. **Verifier** que l'implementation correspond aux specs :
+   - Code implemente vs tasks.md
+   - API contracts respectes
+   - Flux correspond aux diagrammes
+
+4. **Mettre a jour progress.md** : phase = "Verification"
+
+5. **Lister** les ecarts trouves ou confirmer la conformite
+
+**IMPORTANT** : Si les diagrammes manquent, ne pas passer a la suite sans les avoir generes. Les diagrammes sont OBLIGATOIRES.
 
 ### /opsx:continue
 
@@ -192,8 +302,32 @@ Ce fichier DOIT etre mis a jour a chaque etape pour survivre a la compaction de 
 ### /opsx:archive
 
 1. **Verifier** que les tests passent : `npm test`
-2. **Mettre a jour progress.md** : phase = "Archive", status = "completed"
-3. **Optionnel** : deplacer vers `.openspec/archive/`
+
+2. **Merge vers la branche parente** :
+   ```bash
+   # Lire la branche parente depuis progress.md
+   PARENT=$(grep "Parent Branch:" .openspec/changes/*/progress.md | cut -d: -f2 | tr -d ' ')
+   CURRENT=$(git branch --show-current)
+
+   # Merge
+   git checkout $PARENT
+   git merge $CURRENT --no-ff -m "Merge $CURRENT into $PARENT"
+   ```
+
+   | Type | Branche | Merge vers |
+   |------|---------|------------|
+   | Feature | `feat/user-mgmt` | `main` |
+   | Fix sur main | `fix/typo` | `main` |
+   | Fix sur feature | `fix/user-mgmt--login` | `feat/user-mgmt` |
+
+3. **Mettre a jour progress.md** : phase = "Archive", status = "completed"
+
+4. **Optionnel** : supprimer la branche mergee
+   ```bash
+   git branch -d $CURRENT
+   ```
+
+5. **Optionnel** : deplacer vers `.openspec/archive/`
 
 ## Structure des Fichiers
 
@@ -201,14 +335,17 @@ Ce fichier DOIT etre mis a jour a chaque etape pour survivre a la compaction de 
 .openspec/
 ├── config.yaml
 └── changes/
-    └── <feature-slug>/
-        ├── proposal.md      # Description et scope
-        ├── specs/           # Specifications detaillees
-        │   ├── api.md
-        │   └── data.md
-        ├── design.md        # Architecture + DIAGRAMMES MERMAID
-        ├── tasks.md         # Liste des taches
-        └── progress.md      # ETAT PERSISTANT (survit a la compaction)
+    ├── <feature-slug>/           # Pour /opsx:propose
+    │   ├── proposal.md
+    │   ├── specs/
+    │   ├── design.md             # Diagrammes OBLIGATOIRES
+    │   ├── tasks.md
+    │   └── progress.md
+    └── fix-<anomalie-slug>/      # Pour /opsx:fix
+        ├── proposal.md           # Description bug
+        ├── design.md             # Flux bugue + flux corrige
+        ├── tasks.md
+        └── progress.md
 ```
 
 ## Format de design.md
@@ -361,10 +498,12 @@ erDiagram
 ## Format de progress.md
 
 ```markdown
-# Progress: <feature-name>
+# Progress: <name>
 
 ## Metadata
-- Branch: feat/<slug>
+- Type: feature|fix
+- Branch: feat/<slug> | fix/<slug> | fix/<parent>--<slug>
+- Parent Branch: main | feat/<parent>    # Pour les fix
 - Started: <ISO8601>
 - Current Phase: proposal|design|implementation|verification|testing|archive
 - Status: in_progress|blocked|completed
@@ -410,21 +549,44 @@ Le fichier progress.md est la SOURCE DE VERITE pour l'etat du travail.
 
 ## Integration Git
 
+| Commande | Branche creee |
+|----------|---------------|
+| `/opsx:propose` | `feat/<slug>` depuis main |
+| `/opsx:fix` (sur main) | `fix/<slug>` depuis main |
+| `/opsx:fix` (sur feat/X) | `fix/X--<slug>` depuis feat/X |
+
 | Phase | Action Git |
 |-------|------------|
-| propose | `git checkout -b feat/<slug>` |
+| propose/fix | `git checkout -b <branch>` |
 | apply | commits incrementaux |
 | verify | - |
-| archive | PR ready, merge vers main |
+| archive | PR ready, merge vers parent |
+
+**Strategie de branches :**
+
+```
+main
+├── feat/user-management              # Feature
+│   ├── fix/user-management--login    # Fix sur la feature
+│   └── fix/user-management--validation
+└── fix/typo-readme                   # Fix direct sur main
+```
 
 ## Checklist par Phase
 
-### Proposal
-- [ ] Branche creee
+### Proposal (feature)
+- [ ] Branche `feat/<slug>` creee depuis main
 - [ ] proposal.md ecrit
 - [ ] design.md avec diagrammes Mermaid
 - [ ] tasks.md defini
 - [ ] progress.md initialise
+
+### Proposal (fix)
+- [ ] Branche `fix/...` creee depuis branche parente
+- [ ] proposal.md avec description bug (actuel vs attendu)
+- [ ] design.md avec flux bugue + flux corrige
+- [ ] tasks.md defini
+- [ ] progress.md initialise avec parent branch
 
 ### Design (dans design.md)
 - [ ] Architecture decisions documentees
@@ -432,6 +594,10 @@ Le fichier progress.md est la SOURCE DE VERITE pour l'etat du travail.
 - [ ] Diagrammes de sequence (OBLIGATOIRE)
 - [ ] Diagramme d'etat (si entite avec statuts)
 - [ ] Data model (ERD si nouvelle table)
+
+### Design (fix - dans design.md)
+- [ ] Diagramme "Flux actuel (BUG)" - OBLIGATOIRE
+- [ ] Diagramme "Flux corrige (FIX)" - OBLIGATOIRE
 
 ### Implementation
 - [ ] Chaque tache = 1 commit
