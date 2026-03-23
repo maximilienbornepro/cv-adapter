@@ -24,6 +24,35 @@ git push
 
 Cette règle s'applique à TOUS les commits, sans exception.
 
+### Approbation utilisateur avant commit/merge/push
+
+**OBLIGATOIRE : JAMAIS de commit, merge ou push sans approbation explicite de l'utilisateur.**
+
+Après avoir terminé une implémentation et vérifié que les tests passent :
+
+1. **S'arrêter** et présenter le résumé des changements
+2. **Attendre** l'instruction explicite de l'utilisateur ("commit", "merge", "push", etc.)
+3. **Ne jamais** procéder automatiquement, même si tout semble prêt
+
+**Exemple de workflow correct :**
+```
+Claude: Les tests passent (28/28). Voici les fichiers modifiés:
+        - App.tsx
+        - router.tsx
+        - ...
+        Tu veux que je commit et merge ?
+
+User:   oui, commit
+
+Claude: [Procède au commit]
+```
+
+**Ce qui est interdit :**
+- Commit automatique après les tests
+- Merge automatique vers main
+- Push automatique vers origin
+- Enchaîner commit + merge + push sans validation entre chaque étape
+
 ---
 
 ## Synchronisation avec le Boilerplate Upstream
