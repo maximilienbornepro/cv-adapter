@@ -2,6 +2,45 @@
 
 ## Règles OBLIGATOIRES
 
+### ⛔ INTERDICTION ABSOLUE : Pas de code sans spec validée
+
+**RÈGLE #1 - BLOQUANTE : JAMAIS d'écriture de code sans workflow OpenSpec complet.**
+
+Avant d'utiliser les outils `Write` ou `Edit` sur du code applicatif :
+
+1. **VÉRIFIER** qu'un dossier `.openspec/changes/<feature>/` existe avec :
+   - `proposal.md` - Spec de la fonctionnalité
+   - `design.md` - Architecture technique
+   - `tasks.md` - Liste des tâches
+   - `progress.md` - État de la progression
+
+2. **VÉRIFIER** qu'on est sur une branche `feat/<feature>` (pas sur `main`)
+
+3. **VÉRIFIER** que la phase dans `progress.md` est `implementation` ou plus
+
+**Si ces conditions ne sont pas remplies → STOP IMMÉDIAT.**
+
+```
+❌ INTERDIT:
+   User: "Ajoute une page de détail produit"
+   Claude: [Commence à écrire du code]
+
+✅ CORRECT:
+   User: "Ajoute une page de détail produit"
+   Claude: "Le mode OpenSpec est activé. Je dois d'abord créer une spec.
+            Utilise /opsx:propose 'Page detail produit' pour commencer."
+```
+
+**Exceptions (pas besoin de spec)** :
+- Corrections de typos
+- Mise à jour de documentation (CLAUDE.md, README)
+- Fichiers de configuration (.env, package.json versions)
+- Corrections de bugs critiques en production (avec justification)
+
+**En cas de doute → Demander à l'utilisateur si OpenSpec est requis.**
+
+---
+
 ### Tests avant commit/push
 
 **OBLIGATOIRE : Toujours exécuter `npm test` AVANT tout commit ou push.**
@@ -23,6 +62,35 @@ git push
 4. Commit uniquement quand tous les tests passent
 
 Cette règle s'applique à TOUS les commits, sans exception.
+
+### Approbation utilisateur avant commit/merge/push
+
+**OBLIGATOIRE : JAMAIS de commit, merge ou push sans approbation explicite de l'utilisateur.**
+
+Après avoir terminé une implémentation et vérifié que les tests passent :
+
+1. **S'arrêter** et présenter le résumé des changements
+2. **Attendre** l'instruction explicite de l'utilisateur ("commit", "merge", "push", etc.)
+3. **Ne jamais** procéder automatiquement, même si tout semble prêt
+
+**Exemple de workflow correct :**
+```
+Claude: Les tests passent (28/28). Voici les fichiers modifiés:
+        - App.tsx
+        - router.tsx
+        - ...
+        Tu veux que je commit et merge ?
+
+User:   oui, commit
+
+Claude: [Procède au commit]
+```
+
+**Ce qui est interdit :**
+- Commit automatique après les tests
+- Merge automatique vers main
+- Push automatique vers origin
+- Enchaîner commit + merge + push sans validation entre chaque étape
 
 ---
 
@@ -120,6 +188,19 @@ Cette règle garantit que les projets dérivés restent synchronisés avec les a
 > **Par défaut : ACTIVÉ.** Pour désactiver, mettre `OPENSPEC_MODE=off` dans `.claude/config`.
 
 Ce projet utilise **[@fission-ai/openspec](https://github.com/Fission-AI/OpenSpec)** pour le développement spec-first.
+
+### ⚠️ RÈGLE DE BLOCAGE
+
+**Quand OpenSpec est activé, Claude DOIT :**
+
+1. **AVANT toute demande de modification fonctionnelle** : Vérifier s'il existe un dossier `.openspec/changes/` en cours
+2. **Si NON** : Refuser d'écrire du code et demander à l'utilisateur d'utiliser `/opsx:propose`
+3. **Si OUI** : Vérifier que la phase est `implementation` avant d'écrire du code
+
+```bash
+# Vérification automatique à faire par Claude
+ls .openspec/changes/*/progress.md 2>/dev/null || echo "Aucune spec en cours"
+```
 
 ### Installation (faite automatiquement par `./init.sh`)
 
@@ -430,7 +511,12 @@ Si un test échoue, le déploiement est **annulé**. Pas de contournement possib
 
 #### 5. Database
 
-- [ ] `database/init/XX_<module>_schema.sql` - Schéma SQL
+Structure des fichiers SQL :
+- `01_create_databases.sql` - Creation base (NE PAS MODIFIER)
+- `02_platform_schema.sql` - Tables plateforme (NE PAS MODIFIER)
+- `03_<module>_schema.sql` et suivants - Tables modules
+
+- [ ] `database/init/XX_<module>_schema.sql` - Schema SQL du module (XX = 03, 04, 05...)
 
 ### Pattern API Service
 
@@ -475,6 +561,79 @@ export function createRoutes(): Router {
   return router;
 }
 ```
+
+## Mode Embed (acces public)
+
+Le mode embed permet d'acceder a un element d'un module sans authentification, ideal pour l'integration dans des iframes ou le partage de liens publics.
+
+### Comment ca fonctionne
+
+1. **Detection** : L'URL contient `?embed=<ID>` (ex: `/products?embed=123`)
+2. **Skip auth** : `App.tsx` detecte le parametre et bypass l'AuthProvider
+3. **Vue minimale** : Affiche un composant `EmbedView` sans navigation
+4. **Route publique** : Le backend expose `/embed/:id` sans authMiddleware
+
+### Activer l'embed pour un module
+
+Lors de la creation d'un module avec `/module-creator`, repondre **oui** a la question "Activer le mode embed public ?".
+
+Cela genere automatiquement :
+- `components/EmbedView/EmbedView.tsx` - Composant de vue embed
+- `components/EmbedView/EmbedView.css` - Styles minimal (dark/light toggle)
+- Route publique `/embed/:id` dans le backend
+- Fonction `fetchEmbed()` dans `services/api.ts`
+
+### Structure du mode embed
+
+```
+Frontend (App.tsx)
+  |
+  +-- detecte ?embed=ID dans URL
+  |
+  +-- Si embed: <AppRouter embedMode embedId={id} />
+  |
+  +-- Router redirige vers <ModuleApp embedMode embedId={id} />
+  |
+  +-- ModuleApp affiche <EmbedView itemId={id} />
+
+Backend (routes.ts)
+  |
+  +-- GET /embed/:id (PUBLIC, avant authMiddleware)
+  |
+  +-- Retourne les donnees de l'item
+```
+
+### Exemple d'URL embed
+
+```
+# Acces normal (authentifie)
+https://app.example.com/products
+
+# Acces embed (public)
+https://app.example.com/products?embed=42
+
+# Dans une iframe
+<iframe src="https://app.example.com/products?embed=42" />
+```
+
+### Bouton "Copier lien embed"
+
+Pour ajouter un bouton de copie du lien embed dans la liste ou le detail :
+
+```typescript
+const copyEmbedLink = (item: Entity) => {
+  const url = `${window.location.origin}/<module>?embed=${item.id}`;
+  navigator.clipboard.writeText(url);
+  addToast({ type: 'success', message: 'Lien embed copie !' });
+};
+```
+
+### Securite
+
+- Les routes embed sont **read-only** (GET uniquement)
+- Seules les donnees publiques doivent etre exposees
+- L'ID doit etre difficile a deviner si les donnees sont sensibles (utiliser UUID)
+- Pas de tokens d'authentification dans les URLs embed
 
 ## Conventions
 

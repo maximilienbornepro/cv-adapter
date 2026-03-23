@@ -10,6 +10,16 @@ import './modules/gateway/App.css';
 
 type AuthPage = 'login' | 'register';
 
+// Detect embed mode from URL parameter
+function getEmbedParam(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('embed');
+}
+
+function isEmbedMode(): boolean {
+  return getEmbedParam() !== null;
+}
+
 function AppContent() {
   const { user, loading, logout } = useAuth();
   // Apply theme globally (login, register, all pages)
@@ -64,9 +74,33 @@ function AppContent() {
 }
 
 export default function App() {
+  const embedId = getEmbedParam();
+
+  // Embed mode: skip auth, render directly
+  if (embedId) {
+    return <EmbedApp embedId={embedId} />;
+  }
+
+  // Normal mode: require auth
   return (
     <AuthProvider>
       <AppContent />
     </AuthProvider>
+  );
+}
+
+// Embed app without auth
+function EmbedApp({ embedId }: { embedId: string }) {
+  useSharedTheme();
+  const navigate = (path: string) => {
+    window.location.href = path;
+  };
+
+  return (
+    <AppRouter
+      onNavigate={navigate}
+      embedMode
+      embedId={embedId}
+    />
   );
 }

@@ -8,6 +8,81 @@ invocation: user
 
 Ce skill utilise l'outil **@fission-ai/openspec** pour un developpement specification-first.
 
+## ⛔ REGLE DE BLOCAGE ABSOLUE
+
+### AVANT D'ECRIRE DU CODE - VERIFICATIONS OBLIGATOIRES
+
+**Claude DOIT executer ces verifications AVANT tout appel a Write ou Edit sur du code applicatif :**
+
+```bash
+# 1. Verifier le mode OpenSpec
+MODE=$(cat .claude/config 2>/dev/null | grep OPENSPEC_MODE | cut -d= -f2)
+if [ "$MODE" != "off" ]; then
+  echo "OpenSpec ACTIF - Verification requise"
+fi
+
+# 2. Verifier qu'on n'est PAS sur main
+BRANCH=$(git branch --show-current)
+if [ "$BRANCH" = "main" ]; then
+  echo "⛔ ERREUR: Sur main - Creer une branche feat/ d'abord"
+  exit 1
+fi
+
+# 3. Verifier qu'une spec existe
+SPEC_DIR=$(ls -d .openspec/changes/*/ 2>/dev/null | head -1)
+if [ -z "$SPEC_DIR" ]; then
+  echo "⛔ ERREUR: Aucune spec - Utiliser /opsx:propose d'abord"
+  exit 1
+fi
+
+# 4. Verifier que progress.md existe et phase = implementation
+if [ ! -f "${SPEC_DIR}progress.md" ]; then
+  echo "⛔ ERREUR: progress.md manquant"
+  exit 1
+fi
+
+PHASE=$(grep "Current Phase:" ${SPEC_DIR}progress.md | cut -d: -f2 | tr -d ' ')
+if [ "$PHASE" != "implementation" ] && [ "$PHASE" != "verification" ]; then
+  echo "⛔ ERREUR: Phase '$PHASE' - Pas en implementation"
+  exit 1
+fi
+
+echo "✅ Verification OK - Code autorise"
+```
+
+### COMPORTEMENT EN CAS D'ECHEC
+
+Si les verifications echouent, Claude DOIT :
+
+1. **REFUSER** d'ecrire du code
+2. **EXPLIQUER** ce qui manque
+3. **PROPOSER** la commande OpenSpec appropriee
+
+**Exemple de reponse :**
+
+```
+Je ne peux pas ecrire de code car :
+- Nous sommes sur la branche 'main' (interdit)
+- Aucune spec OpenSpec n'existe
+
+Pour commencer, utilise :
+/opsx:propose "description de ta fonctionnalite"
+
+Cela va :
+1. Creer une branche feat/<feature>
+2. Generer les fichiers de spec
+3. Permettre ensuite l'implementation
+```
+
+### EXCEPTIONS (code autorise sans spec)
+
+- Fichiers de configuration (.env, package.json versions)
+- Documentation (CLAUDE.md, README.md)
+- Corrections de typos dans le code existant
+- Hotfix critique en production (avec justification explicite)
+
+---
+
 ## REGLES OBLIGATOIRES
 
 ### 0. Detection automatique des anomalies
@@ -322,9 +397,14 @@ sequenceDiagram
 
 3. **Mettre a jour progress.md** : phase = "Archive", status = "completed"
 
-4. **Optionnel** : supprimer la branche mergee
-   ```bash
-   git branch -d $CURRENT
+4. **DEMANDER CONFIRMATION** avant de supprimer la branche
+
+   **NE JAMAIS supprimer une branche sans demander a l'utilisateur.**
+
+   ```
+   Claude: "La branche feat/xxx a ete mergee. Tu veux que je la supprime ?"
+   User: "oui" → git branch -d $CURRENT
+   User: "non" → garder la branche
    ```
 
 5. **Optionnel** : deplacer vers `.openspec/archive/`
@@ -346,6 +426,84 @@ sequenceDiagram
         ├── design.md             # Flux bugue + flux corrige
         ├── tasks.md
         └── progress.md
+```
+
+## Format de proposal.md
+
+**IMPORTANT** : Bien distinguer ce qui EXISTE de ce qui est A FAIRE et de ce qui est EXCLU.
+
+```markdown
+# Proposal: <feature-name>
+
+## Description
+
+<Description claire de la fonctionnalite en 2-3 phrases>
+
+## Objectifs
+
+1. <Objectif 1>
+2. <Objectif 2>
+3. <Objectif 3>
+
+## Existant (a reutiliser, ne pas modifier)
+
+Elements deja presents dans le codebase qui seront reutilises :
+
+| Element | Fichier/Endpoint | Usage dans cette feature |
+|---------|------------------|--------------------------|
+| API X | `services/api.ts:fetchX` | Charger les donnees |
+| Composant Y | `components/Y/` | Affichage existant |
+| Backend Z | `GET /api/z` | Endpoint existant |
+
+> Si rien n'existe, ecrire "Aucun element existant a reutiliser."
+
+## Scope (a implementer)
+
+### Fichiers a creer
+
+| Fichier | Description |
+|---------|-------------|
+| `components/X/X.tsx` | Composant principal |
+| `components/X/X.module.css` | Styles |
+
+### Fichiers a modifier
+
+| Fichier | Modification |
+|---------|--------------|
+| `App.tsx` | Ajouter routing |
+| `Y.tsx` | Ajouter callback |
+
+### Fonctionnalites incluses
+
+- <Fonctionnalite 1>
+- <Fonctionnalite 2>
+- <Fonctionnalite 3>
+
+## Out of Scope (exclus volontairement)
+
+| Element | Raison de l'exclusion |
+|---------|----------------------|
+| Feature X | Sera une spec separee |
+| Modification Y | Le composant existant suffit |
+
+## Regles UI (checklist obligatoire)
+
+Si la feature inclut une page de detail ou une vue d'element :
+
+- [ ] `ModuleHeader` utilise pour le header (JAMAIS de header custom)
+- [ ] Bouton "Retour" dans ModuleHeader via `onBack`
+- [ ] Bouton "Modifier" dans ModuleHeader si edition possible
+- [ ] Bouton "Embed" dans ModuleHeader si mode embed actif dans le module
+
+> **Rappel** : Tous les boutons d'action DOIVENT etre dans `ModuleHeader`, jamais dans un header custom.
+
+## Criteres d'acceptation
+
+1. <Critere testable 1>
+2. <Critere testable 2>
+3. Tests unitaires presents
+4. `npm test` passe
+5. Boutons dans ModuleHeader (pas de header custom)
 ```
 
 ## Format de design.md
@@ -614,3 +772,4 @@ main
 - [ ] `npm test` passe
 - [ ] Documentation a jour
 - [ ] PR cree ou merge effectue
+- [ ] **Demander confirmation** avant suppression de branche (JAMAIS supprimer sans demander)

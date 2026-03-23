@@ -1,13 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Layout, ToastContainer, ConfirmModal, ModuleHeader } from '@cv-adapter/shared/components';
 import type { ToastData } from '@cv-adapter/shared/components';
 import { ProductList } from './components/ProductList/ProductList';
+import { ProductDetail } from './components/ProductDetail';
 import { ProductForm } from './components/ProductForm/ProductForm';
+import { EmbedView } from './components/EmbedView/EmbedView';
 import type { Product, ProductFormData } from './types';
 import * as api from './services/api';
 import './index.css';
 
-export default function ProductsApp({ onNavigate }: { onNavigate?: (path: string) => void }) {
+interface ProductsAppProps {
+  onNavigate?: (path: string) => void;
+  embedMode?: boolean;
+  embedId?: string;
+}
+
+export default function ProductsApp({ onNavigate, embedMode, embedId }: ProductsAppProps) {
+  // Embed mode: render minimal view
+  if (embedMode && embedId) {
+    return <EmbedView itemId={embedId} />;
+  }
+
+  // Normal mode: full app with layout
   return (
     <Layout appId="products" variant="full-width" onNavigate={onNavigate}>
       <AppContent onNavigate={onNavigate} />
@@ -16,6 +31,8 @@ export default function ProductsApp({ onNavigate }: { onNavigate?: (path: string
 }
 
 function AppContent({ onNavigate }: { onNavigate?: (path: string) => void }) {
+  const navigate = useNavigate();
+
   // Data
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,6 +80,10 @@ function AppContent({ onNavigate }: { onNavigate?: (path: string) => void }) {
     setShowForm(true);
   }, []);
 
+  const handleView = useCallback((product: Product) => {
+    navigate(`/products/${product.id}`);
+  }, [navigate]);
+
   const handleEdit = useCallback((product: Product) => {
     setEditingProduct(product);
     setShowForm(true);
@@ -103,46 +124,83 @@ function AppContent({ onNavigate }: { onNavigate?: (path: string) => void }) {
     }
   }, [deleteConfirm, addToast, loadData]);
 
-  const handleBack = useCallback(() => {
+  const handleBackToHome = useCallback(() => {
     if (onNavigate) onNavigate('/');
     else window.location.href = '/';
   }, [onNavigate]);
 
+  const handleBackToList = useCallback(() => {
+    navigate('/products');
+  }, [navigate]);
+
+  // Handlers for detail page edit
+  const handleEditFromDetail = useCallback((product: Product) => {
+    setEditingProduct(product);
+    setShowForm(true);
+  }, []);
+
+  const handleFormClose = useCallback(() => {
+    setShowForm(false);
+    setEditingProduct(null);
+  }, []);
+
   return (
     <>
-      <ModuleHeader title="Produits" onBack={handleBack}>
-        <button className="module-header-btn module-header-btn-primary" onClick={handleAdd}>
-          + Nouveau
-        </button>
-      </ModuleHeader>
+      <Routes>
+        {/* Product list */}
+        <Route
+          index
+          element={
+            <>
+              <ModuleHeader title="Produits" onBack={handleBackToHome}>
+                <button className="module-header-btn module-header-btn-primary" onClick={handleAdd}>
+                  + Nouveau
+                </button>
+              </ModuleHeader>
 
-      <div className="products-page">
-        <div className="products-content">
-          {loading && products.length === 0 ? (
-            <div className="products-loading">Chargement...</div>
-          ) : products.length === 0 ? (
-            <div className="products-empty">
-              <p>Aucun produit</p>
-              <button className="products-empty-btn" onClick={handleAdd}>
-                Creer un produit
-              </button>
-            </div>
-          ) : (
-            <ProductList
-              products={products}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
+              <div className="products-page">
+                <div className="products-content">
+                  {loading && products.length === 0 ? (
+                    <div className="products-loading">Chargement...</div>
+                  ) : products.length === 0 ? (
+                    <div className="products-empty">
+                      <p>Aucun produit</p>
+                      <button className="products-empty-btn" onClick={handleAdd}>
+                        Creer un produit
+                      </button>
+                    </div>
+                  ) : (
+                    <ProductList
+                      products={products}
+                      onView={handleView}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                    />
+                  )}
+                </div>
+              </div>
+            </>
+          }
+        />
+
+        {/* Product detail */}
+        <Route
+          path=":id"
+          element={
+            <ProductDetail
+              onBack={handleBackToList}
+              onEdit={handleEditFromDetail}
             />
-          )}
-        </div>
-      </div>
+          }
+        />
+      </Routes>
 
-      {/* Modals */}
+      {/* Modals (shared across routes) */}
       {showForm && (
         <ProductForm
           product={editingProduct}
           onSubmit={handleFormSubmit}
-          onClose={() => { setShowForm(false); setEditingProduct(null); }}
+          onClose={handleFormClose}
         />
       )}
 

@@ -6,6 +6,92 @@ invocation: user
 
 # Module Creator
 
+## ⛔ PRE-REQUIS OBLIGATOIRE : OpenSpec
+
+**AVANT d'utiliser ce skill, verifier que le workflow OpenSpec a ete suivi :**
+
+```bash
+# 1. Verifier le mode OpenSpec
+cat .claude/config 2>/dev/null | grep OPENSPEC_MODE || echo "OPENSPEC_MODE=on (defaut)"
+
+# 2. Si OpenSpec est actif, une spec DOIT exister
+ls .openspec/changes/*/progress.md
+```
+
+**Si aucune spec n'existe :**
+
+1. **REFUSER** d'utiliser ce skill
+2. **DIRE** a l'utilisateur : "Utilise d'abord `/opsx:propose 'Nouveau module <nom>'` pour creer la spec"
+3. **ATTENDRE** que la spec soit validee (phase = implementation)
+
+**Ce skill ne doit PAS etre utilise directement sans spec validee.**
+
+---
+
+## REGLES UI OBLIGATOIRES
+
+### 1. Boutons TOUJOURS dans ModuleHeader
+
+**JAMAIS** de header custom avec boutons. Utiliser UNIQUEMENT `ModuleHeader` du design system.
+
+```tsx
+// ✅ CORRECT
+<ModuleHeader title="Titre" onBack={handleBack}>
+  <button className="module-header-btn">Action</button>
+  <button className="module-header-btn module-header-btn-primary">Primary</button>
+</ModuleHeader>
+
+// ❌ INTERDIT
+<div className={styles.header}>
+  <button onClick={onBack}>Retour</button>
+  <button onClick={onEdit}>Modifier</button>
+</div>
+```
+
+**Classes disponibles pour les boutons :**
+- `module-header-btn` - Style de base
+- `module-header-btn-primary` - Action principale (bleu)
+- `module-header-btn-success` - Succes (vert)
+- `module-header-btn-danger` - Danger (rouge)
+
+### 2. Bouton Embed OBLIGATOIRE si mode embed actif
+
+**Si ENABLE_EMBED = oui**, chaque vue de detail DOIT inclure :
+
+```tsx
+const [copied, setCopied] = useState(false);
+
+const copyEmbedLink = useCallback(() => {
+  const url = `${window.location.origin}/<module>?embed=${item.id}`;
+  navigator.clipboard.writeText(url);
+  setCopied(true);
+  setTimeout(() => setCopied(false), 2000);
+}, [item]);
+
+// Dans le ModuleHeader
+<ModuleHeader title={item.name} onBack={onBack}>
+  <button
+    className={`module-header-btn ${copied ? 'module-header-btn-success' : ''}`}
+    onClick={copyEmbedLink}
+  >
+    {copied ? 'Copie !' : 'Embed'}
+  </button>
+  <button className="module-header-btn module-header-btn-primary" onClick={() => onEdit(item)}>
+    Modifier
+  </button>
+</ModuleHeader>
+```
+
+### 3. Pages detail avec ModuleHeader
+
+Toute page de detail (vue d'un element unique) DOIT :
+1. Avoir un `ModuleHeader` avec le nom de l'element en titre
+2. Avoir un bouton "Retour" via `onBack`
+3. Avoir un bouton "Modifier" si l'edition est possible
+4. Avoir un bouton "Embed" si le mode embed est actif
+
+---
+
 Ce skill guide la creation d'un nouveau module parfaitement integre au boilerplate, avec :
 - Design system (composants, tokens CSS, Layout)
 - Systeme de permissions (activable par utilisateur dans l'admin)
@@ -21,15 +107,25 @@ Avant de commencer, collecter :
 - **MODULE_COLOR** : Couleur principale hex (ex: `#10b981`)
 - **ENTITY_NAME** : Nom de l'entite principale (ex: `Order`, `Item`, `Client`)
 - **ENTITY_FIELDS** : Champs de l'entite (avec types)
+- **ENABLE_EMBED** : Activer le mode embed public (oui/non) - Permet l'acces public via `?embed=ID`
 
 ## Checklist de creation
 
 ### 1. Schema SQL
 
-Creer `database/init/XX_<module>_schema.sql` :
+**Structure des fichiers SQL :**
+- `01_create_databases.sql` - Creation de la base (NE PAS MODIFIER)
+- `02_platform_schema.sql` - Tables plateforme: users, user_permissions (NE PAS MODIFIER)
+- `03_<module>_schema.sql` - Tables du module (a creer)
+
+Creer `database/init/XX_<module>_schema.sql` (XX = numero sequentiel, ex: 03, 04, 05...) :
 
 ```sql
+-- =============================================================================
 -- Module: <MODULE_NAME>
+-- Tables specifiques au module <module>
+-- =============================================================================
+
 \c app;
 
 CREATE TABLE IF NOT EXISTS <module_name_plural> (
@@ -42,6 +138,8 @@ CREATE TABLE IF NOT EXISTS <module_name_plural> (
 
 CREATE INDEX IF NOT EXISTS idx_<module>_created ON <module_name_plural>(created_at);
 ```
+
+> **Note** : Chaque module a son propre fichier SQL. Ne jamais modifier `02_platform_schema.sql`.
 
 ### 2. Backend
 
@@ -741,7 +839,292 @@ router.use(authMiddleware);
 router.use(permissionMiddleware('<module>'));
 ```
 
-### 7. Verification finale
+### 7. Mode Embed (si ENABLE_EMBED = oui)
+
+Le mode embed permet d'acceder a un element du module sans authentification, via l'URL `/<module>?embed=<ID>`.
+
+#### 7.1 Modifier App.tsx pour supporter le mode embed
+
+```typescript
+// apps/platform/src/modules/<module>/App.tsx
+
+import { EmbedView } from './components/EmbedView/EmbedView';
+
+interface <Module>AppProps {
+  onNavigate?: (path: string) => void;
+  embedMode?: boolean;
+  embedId?: string;
+}
+
+export default function <Module>App({ onNavigate, embedMode, embedId }: <Module>AppProps) {
+  // Embed mode: render minimal view
+  if (embedMode && embedId) {
+    return <EmbedView itemId={embedId} />;
+  }
+
+  // Normal mode: full app with layout
+  return (
+    <Layout appId="<module>" variant="full-width" onNavigate={onNavigate}>
+      <AppContent onNavigate={onNavigate} />
+    </Layout>
+  );
+}
+```
+
+#### 7.2 Composant EmbedView
+
+Creer `apps/platform/src/modules/<module>/components/EmbedView/EmbedView.tsx` :
+
+```typescript
+import { useState, useEffect } from 'react';
+import { fetch<Entity>Embed } from '../../services/api';
+import type { <Entity> } from '../../types';
+import './EmbedView.css';
+
+interface EmbedViewProps {
+  itemId: string;
+}
+
+export function EmbedView({ itemId }: EmbedViewProps) {
+  const [item, setItem] = useState<<Entity> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isDark, setIsDark] = useState(true);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  }, [isDark]);
+
+  useEffect(() => {
+    async function loadItem() {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetch<Entity>Embed(itemId);
+        setItem(data);
+      } catch (err: any) {
+        setError(err.message || 'Erreur lors du chargement');
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadItem();
+  }, [itemId]);
+
+  if (loading) {
+    return <div className="embed-loading">Chargement...</div>;
+  }
+
+  if (error) {
+    return <div className="embed-error">{error}</div>;
+  }
+
+  if (!item) {
+    return <div className="embed-error">Element non trouve</div>;
+  }
+
+  return (
+    <div className={`embed-app ${isDark ? 'embed-dark' : 'embed-light'}`}>
+      <div className="embed-header">
+        <h1 className="embed-title">{item.name}</h1>
+        <button
+          className="embed-theme-toggle"
+          onClick={() => setIsDark(!isDark)}
+          title={isDark ? 'Mode clair' : 'Mode sombre'}
+        >
+          {isDark ? '\u2600\ufe0f' : '\ud83c\udf19'}
+        </button>
+      </div>
+      <div className="embed-content">
+        {/* Afficher les champs de l'entite en lecture seule */}
+        <div className="embed-field">
+          <span className="embed-label">Nom</span>
+          <p className="embed-value">{item.name}</p>
+        </div>
+        {/* Ajouter d'autres champs selon l'entite */}
+      </div>
+    </div>
+  );
+}
+```
+
+#### 7.3 Styles EmbedView
+
+Creer `apps/platform/src/modules/<module>/components/EmbedView/EmbedView.css` :
+
+```css
+.embed-app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+}
+
+.embed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.embed-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.embed-theme-toggle {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.embed-theme-toggle:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-color);
+}
+
+.embed-content {
+  flex: 1;
+  overflow: auto;
+  padding: var(--spacing-lg);
+}
+
+.embed-field {
+  margin-bottom: var(--spacing-lg);
+}
+
+.embed-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-xs);
+}
+
+.embed-value {
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+}
+
+.embed-loading,
+.embed-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: var(--text-muted);
+  font-family: var(--font-family);
+  background: var(--bg-primary);
+}
+
+.embed-error {
+  color: var(--color-error);
+}
+```
+
+#### 7.4 Index export
+
+Creer `apps/platform/src/modules/<module>/components/EmbedView/index.ts` :
+
+```typescript
+export { EmbedView } from './EmbedView';
+```
+
+#### 7.5 Route publique embed (backend)
+
+Modifier `apps/platform/servers/unified/src/modules/<module>/routes.ts` pour ajouter la route publique AVANT l'authMiddleware :
+
+```typescript
+export function create<Module>Routes(): Router {
+  const router = Router();
+
+  // PUBLIC: Route embed (NO AUTH REQUIRED)
+  router.get('/embed/:id', asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'ID invalide' });
+      return;
+    }
+
+    const item = await db.getById(id);
+    if (!item) {
+      res.status(404).json({ error: 'Non trouve' });
+      return;
+    }
+
+    res.json(item);
+  }));
+
+  // All other routes require authentication
+  router.use(authMiddleware);
+
+  // ... reste des routes protegees
+}
+```
+
+#### 7.6 API embed (frontend)
+
+Ajouter dans `apps/platform/src/modules/<module>/services/api.ts` :
+
+```typescript
+// Public embed endpoint (no auth required)
+export async function fetch<Entity>Embed(id: string): Promise<<Entity>> {
+  const response = await fetch(`${API_BASE}/embed/${id}`);
+  return handleResponse<<Entity>>(response);
+}
+```
+
+#### 7.7 Router support embed
+
+Verifier que `apps/platform/src/router.tsx` passe les props embed au module :
+
+```typescript
+// Dans les Routes du mode embed
+<Route
+  path="/<module>/*"
+  element={
+    <SuspenseWrapper>
+      <<Module>App onNavigate={onNavigate} embedMode embedId={embedId} />
+    </SuspenseWrapper>
+  }
+/>
+```
+
+#### 7.8 Bouton "Copier lien embed" (optionnel)
+
+Ajouter dans la liste ou le detail de l'entite :
+
+```typescript
+const copyEmbedLink = useCallback((item: <Entity>) => {
+  const url = `${window.location.origin}/<module>?embed=${item.id}`;
+  navigator.clipboard.writeText(url);
+  addToast({ type: 'success', message: 'Lien embed copie !' });
+}, [addToast]);
+
+// Dans le render
+<button
+  className="embed-link-btn"
+  onClick={() => copyEmbedLink(item)}
+  title="Copier le lien embed"
+>
+  Embed
+</button>
+```
+
+### 8. Verification finale
 
 ```bash
 # Creer la branche (mode OpenSpec)
