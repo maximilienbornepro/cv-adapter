@@ -42,14 +42,53 @@ Ne JAMAIS executer `deploy.sh` directement - c'est le script cote serveur, appel
 - Acces SSH au serveur
 - Git initialise sur le serveur distant (origin pointe vers le repo)
 
+## Reverse proxy (proxy-network)
+
+Si le serveur utilise un **shared-proxy** (nginx partage entre plusieurs apps), les containers doivent etre sur le reseau `proxy-network` pour que le proxy puisse les atteindre.
+
+**Dans `docker-compose.prod.yml`** :
+```yaml
+services:
+  unified-server:
+    networks:
+      - app-network
+      - proxy-network    # Necessaire pour le reverse proxy
+
+  platform-client:
+    networks:
+      - app-network
+      - proxy-network    # Necessaire pour le reverse proxy
+
+networks:
+  app-network:
+    driver: bridge
+  proxy-network:
+    external: true       # Reseau cree par le shared-proxy
+```
+
+**IMPORTANT** : Sans `proxy-network`, le site retourne 502/maintenance apres chaque deploiement car les containers sont recrees et perdent la connexion au proxy.
+
+### Verifier la connectivite
+```bash
+# Voir les reseaux d'un container
+ssh <user>@<host> "docker inspect <container> --format '{{range \$k, \$v := .NetworkSettings.Networks}}{{\$k}} {{end}}'"
+
+# Connecter manuellement si necessaire (temporaire)
+ssh <user>@<host> "docker network connect proxy-network <container>"
+```
+
 ## Depannage
+
+### Site en maintenance / 502 apres deploy
+Cause probable : les containers ne sont pas sur `proxy-network`.
+Fix : ajouter `proxy-network` dans `docker-compose.prod.yml` (voir section ci-dessus).
 
 ### `Permission denied` sur deploy.sh
 ```bash
 ssh <user>@<host> "chmod +x /path/to/deploy.sh"
 ```
 
-### Container qui redémarre en boucle
+### Container qui redemarre en boucle
 ```bash
 ./deploy-remote.sh logs
 ```
@@ -58,6 +97,12 @@ Verifier les erreurs dans les logs du container concerne.
 ### `not a git repository` sur le serveur
 ```bash
 ssh <user>@<host> "cd /path/to/app && git init && git remote add origin <repo-url> && git fetch origin main && git reset --hard origin/main"
+```
+
+### Scripts sans permission d'execution apres deploy
+Le `git reset --hard` peut retirer les permissions d'execution. Fix :
+```bash
+ssh <user>@<host> "chmod +x /path/to/deploy.sh /path/to/deploy-remote.sh /path/to/init.sh"
 ```
 
 ## Ce que fait deploy-remote.sh
