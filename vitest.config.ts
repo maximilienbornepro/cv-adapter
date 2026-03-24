@@ -41,6 +41,15 @@ export default defineConfig({
           environment: 'node',
         },
       },
+      // Server: cv-adapter
+      {
+        test: {
+          name: 'server-cv-adapter',
+          root: '.',
+          include: ['apps/platform/servers/unified/src/modules/__tests__/cv-adapter/**/*.test.ts'],
+          environment: 'node',
+        },
+      },
       // Client modules
       {
         test: {
@@ -55,6 +64,14 @@ export default defineConfig({
           name: 'client-gateway',
           root: '.',
           include: ['apps/platform/src/modules/gateway/__tests__/**/*.test.ts'],
+          environment: 'node',
+        },
+      },
+      {
+        test: {
+          name: 'client-cv-adapter',
+          root: '.',
+          include: ['apps/platform/src/modules/cv-adapter/__tests__/**/*.test.ts'],
           environment: 'node',
         },
       },

@@ -1,7 +1,7 @@
 {
-  "name": "boilerplate-platform",
+  "name": "studio-platform",
   "version": "1.0.0",
-  "description": "Boilerplate platform with JWT authentication and design system",
+  "description": "Adaptateur de CV",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -27,6 +27,8 @@
     "test:client": "vitest run --project 'client-*'",
     "test:client:gateway": "vitest run --project client-gateway",
     "test:client:products": "vitest run --project client-products",
+    "test:client:cv-adapter": "vitest run --project client-cv-adapter",
+    "test:server:cv-adapter": "vitest run --project server-cv-adapter",
     "test:shared": "vitest run --project shared",
     "predeploy": "npm test"
   },

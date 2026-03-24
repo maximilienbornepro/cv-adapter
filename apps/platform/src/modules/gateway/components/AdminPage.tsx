@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ConfirmModal } from '@boilerplate/shared/components';
-import { APPS } from '../constants';
+import { ConfirmModal, APPS } from '@studio/shared/components';
 
 interface User {
   id: number;

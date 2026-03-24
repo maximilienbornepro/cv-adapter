@@ -103,7 +103,7 @@ export function SharedNav({
         >
           <img
             src="/favicon.svg"
-            alt="Boilerplate"
+            alt="Studio"
             className="shared-nav-logo"
           />
         </a>

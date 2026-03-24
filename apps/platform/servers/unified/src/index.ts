@@ -2,11 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { config } from './config.js';
-import { errorMiddleware } from '@boilerplate/shared/server';
+import { errorMiddleware } from '@studio/shared/server';
 
 // Import modules
 import { initGateway, createGatewayRouter } from './modules/gateway.js';
 import { initProducts, createProductsRouter } from './modules/products/index.js';
+import { initCvAdapter, createCvAdapterRouter } from './modules/cv-adapter/index.js';
 
 const app = express();
 
@@ -34,6 +35,10 @@ async function init() {
   // Products
   await initProducts();
   app.use('/products/api', createProductsRouter());
+
+  // CV Adapter
+  await initCvAdapter();
+  app.use('/cv-adapter/api', createCvAdapterRouter());
 
   // Error handling
   app.use(errorMiddleware);

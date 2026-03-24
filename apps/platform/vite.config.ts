@@ -19,6 +19,11 @@ export default defineConfig({
         target: UNIFIED_SERVER,
         rewrite: (path) => path.replace(/^\/products-api/, '/products/api'),
       },
+      // CV Adapter API: /cv-adapter-api/* → /cv-adapter/api/*
+      '/cv-adapter-api': {
+        target: UNIFIED_SERVER,
+        rewrite: (path) => path.replace(/^\/cv-adapter-api/, '/cv-adapter/api'),
+      },
       // Gateway APIs (auth, admin)
       '/api/auth': {
         target: UNIFIED_SERVER,
@@ -33,7 +38,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-shared': ['@boilerplate/shared'],
+          'vendor-shared': ['@studio/shared'],
         },
       },
     },

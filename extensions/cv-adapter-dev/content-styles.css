@@ -1,0 +1,27 @@
+/* CV Adapter content script styles */
+
+/* Visual feedback when field is being filled */
+.cv-adapter-filling {
+  outline: 2px solid #06b6d4 !important;
+  outline-offset: 2px;
+  transition: outline 0.2s ease;
+}
+
+.cv-adapter-filled {
+  animation: cvAdapterFilled 0.5s ease;
+}
+
+@keyframes cvAdapterFilled {
+  0% {
+    outline: 2px solid #06b6d4;
+    outline-offset: 2px;
+  }
+  50% {
+    outline: 2px solid #10b981;
+    outline-offset: 2px;
+  }
+  100% {
+    outline: none;
+    outline-offset: 0;
+  }
+}

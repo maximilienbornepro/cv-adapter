@@ -1,4 +1,4 @@
-import { APPS, CATEGORIES } from '../constants';
+import { APPS, CATEGORIES } from '@studio/shared/components';
 import { useAuth } from '../context/AuthContext';
 
 interface LandingPageProps {
@@ -34,7 +34,7 @@ export function LandingPage({ onNavigate }: LandingPageProps = {}) {
 
   return (
     <div className="landing">
-      <h1 className="landing-title">Boilerplate Platform</h1>
+      <h1 className="landing-title">Studio</h1>
       <p className="landing-subtitle">
         Plateforme de gestion avec authentification JWT et design system intégré
       </p>

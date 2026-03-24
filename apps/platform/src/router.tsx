@@ -1,11 +1,12 @@
 import { lazy, Suspense, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { LoadingSpinner, SharedNav } from '@boilerplate/shared/components';
+import { LoadingSpinner, SharedNav } from '@studio/shared/components';
 import { LandingPage } from './modules/gateway/components/LandingPage';
 import { AdminPage } from './modules/gateway/components/AdminPage';
 
 // Lazy load modules
 const ProductsApp = lazy(() => import('./modules/products/App'));
+const CvAdapterApp = lazy(() => import('./modules/cv-adapter/App'));
 
 interface User {
   id: number;
@@ -19,6 +20,8 @@ interface AppRouterProps {
   onNavigate?: (path: string) => void;
   user?: User | null;
   onLogout?: () => void;
+  embedMode?: boolean;
+  embedId?: string;
 }
 
 const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
@@ -66,7 +69,40 @@ function HomePage({ onNavigate, user }: { onNavigate?: (path: string) => void; u
   );
 }
 
-export function AppRouter({ onNavigate, user, onLogout }: AppRouterProps) {
+export function AppRouter({ onNavigate, user, onLogout, embedMode, embedId }: AppRouterProps) {
+  // Embed mode: render module directly without nav
+  if (embedMode && embedId) {
+    return (
+      <Routes>
+        <Route
+          path="/products/*"
+          element={
+            <SuspenseWrapper>
+              <ProductsApp onNavigate={onNavigate} embedMode embedId={embedId} />
+            </SuspenseWrapper>
+          }
+        />
+        <Route
+          path="/cv-adapter/*"
+          element={
+            <SuspenseWrapper>
+              <CvAdapterApp onNavigate={onNavigate} embedMode embedId={embedId} />
+            </SuspenseWrapper>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <div className="embed-error">
+              <p>Module non trouvé pour l'embed</p>
+            </div>
+          }
+        />
+      </Routes>
+    );
+  }
+
+  // Normal mode with authentication
   return (
     <Routes>
       <Route
@@ -78,6 +114,14 @@ export function AppRouter({ onNavigate, user, onLogout }: AppRouterProps) {
         element={
           <SuspenseWrapper>
             <ProductsApp onNavigate={onNavigate} />
+          </SuspenseWrapper>
+        }
+      />
+      <Route
+        path="/cv-adapter/*"
+        element={
+          <SuspenseWrapper>
+            <CvAdapterApp onNavigate={onNavigate} />
           </SuspenseWrapper>
         }
       />
