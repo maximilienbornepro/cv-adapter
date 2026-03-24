@@ -12,10 +12,10 @@ export interface PDFConfig {
 
 const DEFAULT_CONFIG: PDFConfig = {
   format: 'A4',
-  marginTop: '15mm',
-  marginBottom: '15mm',
-  marginLeft: '15mm',
-  marginRight: '15mm',
+  marginTop: '0',
+  marginBottom: '0',
+  marginLeft: '0',
+  marginRight: '0',
 };
 
 /**
@@ -106,7 +106,6 @@ function generateSidebarHTML(cvData: CVData): string {
 
   return `
     <aside class="sidebar">
-      ${photo}
       ${contact}
       ${languages}
       ${skillSections}
@@ -165,20 +164,6 @@ function generateExperienceHTML(exp: Experience): string {
       ${projects}
       ${technologies}
     </div>
-  `;
-}
-
-/**
- * Generate experiences section HTML
- */
-function generateExperiencesHTML(experiences: Experience[]): string {
-  if (!experiences || experiences.length === 0) return '';
-
-  return `
-    <section class="main-section">
-      <h2>Expériences Professionnelles</h2>
-      ${experiences.map(exp => generateExperienceHTML(exp)).join('')}
-    </section>
   `;
 }
 
@@ -261,18 +246,10 @@ function generateAwardsHTML(awards: Award[]): string {
  * Generate main content HTML
  */
 function generateMainHTML(cvData: CVData): string {
-  const header = `
-    <header class="main-header">
-      <h1>${cvData.name || 'CV'}</h1>
-      ${cvData.title ? `<p class="title">${cvData.title}</p>` : ''}
-      ${cvData.summary ? `<p class="summary">${cvData.summary}</p>` : ''}
-    </header>
-  `;
-
   return `
     <main class="main-content">
-      ${header}
-      ${generateExperiencesHTML(cvData.experiences || [])}
+      <h2 class="main-section-title">Expériences Professionnelles</h2>
+      ${(cvData.experiences || []).map(exp => generateExperienceHTML(exp)).join('')}
       ${generateFormationsHTML(cvData.formations || [])}
       ${generateSideProjectsHTML(cvData.sideProjects)}
       ${generateAwardsHTML(cvData.awards || [])}
@@ -283,7 +260,25 @@ function generateMainHTML(cvData: CVData): string {
 /**
  * Generate complete HTML for CV
  */
+function generateTopHeaderHTML(cvData: CVData): string {
+  const photo = cvData.profilePhoto
+    ? `<img src="${cvData.profilePhoto}" alt="Photo" class="top-photo" />`
+    : '';
+
+  return `
+    <header class="top-header">
+      ${photo}
+      <div class="top-info">
+        <h1>${cvData.name || 'CV'}</h1>
+        ${cvData.title ? `<p class="top-title">${cvData.title}</p>` : ''}
+        ${cvData.summary ? `<p class="top-summary">${cvData.summary}</p>` : ''}
+      </div>
+    </header>
+  `;
+}
+
 export function generateCVHTML(cvData: CVData): string {
+  const topHeader = generateTopHeaderHTML(cvData);
   const sidebar = generateSidebarHTML(cvData);
   const main = generateMainHTML(cvData);
 
@@ -297,25 +292,71 @@ export function generateCVHTML(cvData: CVData): string {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    body {
+    html, body {
+      height: 100%;
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       line-height: 1.5;
       color: #e5e5e5;
-      background: #0a0a0a;
+      background: #1a1a1a;
+    }
+
+    /* Top header - full width */
+    .top-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 20px 25px;
+      background: #111;
+      border-bottom: 2px solid #06b6d4;
+    }
+
+    .top-photo {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #06b6d4;
+      flex-shrink: 0;
+    }
+
+    .top-info h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #e5e5e5;
+      margin-bottom: 2px;
+    }
+
+    .top-info .top-title {
+      font-size: 11px;
+      color: #06b6d4;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .top-info .top-summary {
+      font-size: 8px;
+      color: #a3a3a3;
+      line-height: 1.4;
     }
 
     .cv-container {
       display: flex;
-      min-height: 100vh;
-      max-width: 800px;
-      margin: 0 auto;
+      min-height: calc(100% - 110px);
+      max-width: 100%;
+      margin: 0;
     }
 
     /* Sidebar */
@@ -324,21 +365,6 @@ export function generateCVHTML(cvData: CVData): string {
       background: #1a1a1a;
       padding: 20px;
       flex-shrink: 0;
-    }
-
-    .profile-photo {
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 2px solid #06b6d4;
-    }
-
-    .profile-photo img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
     }
 
     .sidebar .section {
@@ -390,39 +416,24 @@ export function generateCVHTML(cvData: CVData): string {
       flex: 1;
       background: #fafafa;
       color: #171717;
-      padding: 25px;
+      padding: 20px;
+      min-height: 100%;
     }
 
-    .main-header {
-      margin-bottom: 25px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid #06b6d4;
-    }
-
-    .main-header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: #171717;
-      margin-bottom: 5px;
-    }
-
-    .main-header .title {
-      font-size: 14px;
-      color: #06b6d4;
+    .main-section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
       font-weight: 500;
-      margin-bottom: 10px;
-    }
-
-    .main-header .summary {
-      font-size: 10px;
-      color: #525252;
-      line-height: 1.6;
+      color: #171717;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #e5e5e5;
     }
 
     .main-section {
-      margin-bottom: 20px;
-      page-break-inside: avoid;
+      margin-bottom: 12px;
     }
 
     .main-section h2 {
@@ -439,8 +450,7 @@ export function generateCVHTML(cvData: CVData): string {
 
     /* Experience */
     .experience {
-      margin-bottom: 20px;
-      page-break-inside: avoid;
+      margin-bottom: 15px;
     }
 
     .exp-header {
@@ -624,24 +634,17 @@ export function generateCVHTML(cvData: CVData): string {
     /* Print styles */
     @media print {
       body {
-        background: white;
+        background: #1a1a1a;
       }
 
       .cv-container {
         max-width: none;
       }
-
-      .main-section {
-        page-break-inside: avoid;
-      }
-
-      .experience {
-        page-break-inside: avoid;
-      }
     }
   </style>
 </head>
 <body>
+  ${topHeader}
   <div class="cv-container">
     ${sidebar}
     ${main}
@@ -669,10 +672,13 @@ export async function generatePDF(
   // Generate HTML
   const html = generateCVHTML(cvData);
 
-  // Launch Puppeteer
+  // Launch Puppeteer (use system Chromium in production via PUPPETEER_EXECUTABLE_PATH)
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    ...(process.env.PUPPETEER_EXECUTABLE_PATH && {
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+    }),
   });
 
   try {
