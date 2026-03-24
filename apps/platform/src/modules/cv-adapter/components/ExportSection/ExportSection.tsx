@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LoadingSpinner } from '@cv-adapter/shared/components';
+import { LoadingSpinner } from '@studio/shared/components';
 import type { CVData } from '../../types';
 import { getPreviewHTML, getFullPreviewHTML, downloadPDF } from '../../services/api';
 import './ExportSection.css';

@@ -1,5 +1,5 @@
 export const NAV_HEIGHT = 50;
-export const THEME_STORAGE_KEY = 'cv-adapter-theme';
+export const THEME_STORAGE_KEY = 'studio-theme';
 
 export type AppCategory = 'main';
 

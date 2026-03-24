@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ModuleHeader, ToastContainer, ConfirmModal } from '@cv-adapter/shared/components';
-import type { ToastData } from '@cv-adapter/shared/components';
+import { ModuleHeader, ToastContainer, ConfirmModal } from '@studio/shared/components';
+import type { ToastData } from '@studio/shared/components';
 import { ExpandableSection } from '../ExpandableSection';
 import { TagEditor } from '../TagEditor';
 import { ListEditor } from '../ListEditor';

@@ -38,7 +38,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-shared': ['@cv-adapter/shared'],
+          'vendor-shared': ['@studio/shared'],
         },
       },
     },

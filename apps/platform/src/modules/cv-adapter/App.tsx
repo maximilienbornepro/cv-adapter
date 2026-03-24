@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Layout } from '@cv-adapter/shared/components';
+import { Layout } from '@studio/shared/components';
 import { MyProfilePage } from './components/MyProfilePage';
 import { AdaptCVPage } from './components/AdaptCVPage';
 import type { CVData, CV } from './types';

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { ModuleHeader } from '@boilerplate/shared/components';
+import { ModuleHeader } from '@studio/shared/components';
 import type { Product } from '../../types';
 import { fetchProduct } from '../../services/api';
 import styles from './ProductDetail.module.css';

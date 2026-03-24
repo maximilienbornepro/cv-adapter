@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { authMiddleware } from '../../middleware/index.js';
-import { asyncHandler } from '@cv-adapter/shared/server';
+import { asyncHandler } from '@studio/shared/server';
 import * as db from './dbService.js';
 import { createEmptyCV } from './types.js';
 import type { CVData, MergeRequest } from './types.js';

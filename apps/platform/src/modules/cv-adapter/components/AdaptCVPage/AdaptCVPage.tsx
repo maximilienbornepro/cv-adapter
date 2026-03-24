@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ModuleHeader, LoadingSpinner } from '@cv-adapter/shared/components';
+import { ModuleHeader, LoadingSpinner } from '@studio/shared/components';
 import type { CVData, AdaptResponse, Project } from '../../types';
 import { adaptCV } from '../../services/api';
 import './AdaptCVPage.css';

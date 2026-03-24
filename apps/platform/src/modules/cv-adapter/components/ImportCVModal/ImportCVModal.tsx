@@ -1,5 +1,5 @@
 import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
-import { Modal } from '@cv-adapter/shared/components';
+import { Modal } from '@studio/shared/components';
 import type { CV, CVData, DiffItem, ImportPreviewResult } from '../../types';
 import * as api from '../../services/api';
 import './ImportCVModal.css';

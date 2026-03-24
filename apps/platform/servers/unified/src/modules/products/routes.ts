@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware } from '../../middleware/index.js';
-import { asyncHandler } from '@cv-adapter/shared/server';
+import { asyncHandler } from '@studio/shared/server';
 import * as db from './dbService.js';
 
 export async function initDb() {

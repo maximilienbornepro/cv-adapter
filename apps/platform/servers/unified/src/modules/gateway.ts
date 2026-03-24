@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { config } from '../config.js';
 import { authMiddleware, adminMiddleware } from '../middleware/index.js';
-import { asyncHandler } from '@cv-adapter/shared/server';
+import { asyncHandler } from '@studio/shared/server';
 
 // Available apps for permissions
 const AVAILABLE_APPS = ['products', 'admin', 'cv-adapter'];

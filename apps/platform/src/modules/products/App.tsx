@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Layout, ToastContainer, ConfirmModal, ModuleHeader } from '@cv-adapter/shared/components';
-import type { ToastData } from '@cv-adapter/shared/components';
+import { Layout, ToastContainer, ConfirmModal, ModuleHeader } from '@studio/shared/components';
+import type { ToastData } from '@studio/shared/components';
 import { ProductList } from './components/ProductList/ProductList';
 import { ProductDetail } from './components/ProductDetail';
 import { ProductForm } from './components/ProductForm/ProductForm';

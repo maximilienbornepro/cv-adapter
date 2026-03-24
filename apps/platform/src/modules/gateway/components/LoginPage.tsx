@@ -29,7 +29,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1 className="auth-title">Adaptateur de CV</h1>
+        <h1 className="auth-title">Studio</h1>
         <p className="auth-subtitle">Connectez-vous pour accéder à la plateforme</p>
 
         <form onSubmit={handleSubmit} className="auth-form">

@@ -9,7 +9,7 @@ set -e
 
 COMPOSE_FILE="docker-compose.prod.yml"
 ENV_FILE=".env.prod"
-PROJECT_NAME="cv-adapter"
+PROJECT_NAME="studio"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { LoadingSpinner, SharedNav } from '@cv-adapter/shared/components';
+import { LoadingSpinner, SharedNav } from '@studio/shared/components';
 import { LandingPage } from './modules/gateway/components/LandingPage';
 import { AdminPage } from './modules/gateway/components/AdminPage';
 
