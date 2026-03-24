@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { LoadingSpinner } from '@cv-adapter/shared/components';
 import type { CVData } from '../../types';
-import { getPreviewHTML, downloadPDF } from '../../services/api';
+import { getPreviewHTML, getFullPreviewHTML, downloadPDF } from '../../services/api';
 import './ExportSection.css';
 
 interface ExportSectionProps {
@@ -10,6 +10,7 @@ interface ExportSectionProps {
 
 export function ExportSection({ cvData }: ExportSectionProps) {
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [loadingFullPreview, setLoadingFullPreview] = useState(false);
   const [loadingPDF, setLoadingPDF] = useState(false);
   const [error, setError] = useState('');
 
@@ -27,6 +28,23 @@ export function ExportSection({ cvData }: ExportSectionProps) {
       setError(err.message || 'Erreur lors de la génération du preview');
     } finally {
       setLoadingPreview(false);
+    }
+  };
+
+  const handleFullPreviewHTML = async () => {
+    setLoadingFullPreview(true);
+    setError('');
+
+    try {
+      const html = await getFullPreviewHTML(cvData);
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la génération de l\'aperçu complet');
+    } finally {
+      setLoadingFullPreview(false);
     }
   };
 
@@ -85,7 +103,7 @@ export function ExportSection({ cvData }: ExportSectionProps) {
         <button
           className="export-btn preview-html"
           onClick={handlePreviewHTML}
-          disabled={loadingPreview || loadingPDF}
+          disabled={loadingPreview || loadingFullPreview || loadingPDF}
         >
           {loadingPreview ? (
             <LoadingSpinner size="small" />
@@ -96,9 +114,22 @@ export function ExportSection({ cvData }: ExportSectionProps) {
         </button>
 
         <button
+          className="export-btn preview-full"
+          onClick={handleFullPreviewHTML}
+          disabled={loadingPreview || loadingFullPreview || loadingPDF}
+        >
+          {loadingFullPreview ? (
+            <LoadingSpinner size="small" />
+          ) : (
+            <span className="btn-icon">📋</span>
+          )}
+          <span>Aperçu complet</span>
+        </button>
+
+        <button
           className="export-btn preview-pdf"
           onClick={handlePreviewPDF}
-          disabled={loadingPreview || loadingPDF}
+          disabled={loadingPreview || loadingFullPreview || loadingPDF}
         >
           {loadingPDF ? (
             <LoadingSpinner size="small" />
@@ -111,7 +142,7 @@ export function ExportSection({ cvData }: ExportSectionProps) {
         <button
           className="export-btn download-pdf"
           onClick={handleDownloadPDF}
-          disabled={loadingPreview || loadingPDF}
+          disabled={loadingPreview || loadingFullPreview || loadingPDF}
         >
           {loadingPDF ? (
             <LoadingSpinner size="small" />

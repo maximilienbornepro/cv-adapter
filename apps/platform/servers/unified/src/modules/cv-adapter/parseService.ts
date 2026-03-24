@@ -11,6 +11,11 @@ async function getPdfParse() {
   return pdfParse;
 }
 
+// Check API key at module load
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.warn('[CV-Adapter] WARNING: ANTHROPIC_API_KEY not set - CV parsing will fail');
+}
+
 const anthropic = new Anthropic();
 
 const CV_PARSE_PROMPT = `Analyse ce CV et extrait les informations dans le format JSON suivant.
@@ -83,7 +88,9 @@ Regles:
 - Extrait uniquement les informations presentes dans le CV
 - Laisse les champs vides si l'information n'est pas disponible
 - Pour les tableaux vides, utilise []
-- Assure-toi que le JSON est valide`;
+- Assure-toi que le JSON est valide
+- IMPORTANT pour les projets: chaque projet distinct doit etre une entree separee dans le tableau "projects". Si tu vois plusieurs projets listes (separes par des virgules, tirets, ou sur des lignes differentes), cree une entree pour CHAQUE projet avec son titre et sa description.
+- IMPORTANT pour les missions: chaque mission/responsabilite distincte doit etre une entree separee dans le tableau "missions".`;
 
 export async function parseCV(buffer: Buffer, type: 'pdf' | 'docx'): Promise<CVData> {
   let text: string;
@@ -107,23 +114,25 @@ export async function parseCV(buffer: Buffer, type: 'pdf' | 'docx'): Promise<CVD
 }
 
 export async function parseCVWithText(text: string): Promise<CVData> {
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 4096,
-    messages: [
-      {
-        role: 'user',
-        content: `${CV_PARSE_PROMPT}\n\nContenu du CV:\n${text}`,
-      },
-    ],
-  });
-
-  const content = response.content[0];
-  if (content.type !== 'text') {
-    throw new Error('Reponse inattendue de l\'IA');
-  }
-
   try {
+    console.log('[CV-Adapter] Calling Anthropic API for CV parsing...');
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 8192,
+      messages: [
+        {
+          role: 'user',
+          content: `${CV_PARSE_PROMPT}\n\nContenu du CV:\n${text}`,
+        },
+      ],
+    });
+    console.log('[CV-Adapter] API response received');
+
+    const content = response.content[0];
+    if (content.type !== 'text') {
+      throw new Error('Reponse inattendue de l\'IA');
+    }
+
     // Try to parse the JSON response
     let jsonText = content.text.trim();
 
@@ -139,8 +148,11 @@ export async function parseCVWithText(text: string): Promise<CVData> {
 
     const parsed = JSON.parse(jsonText.trim());
     return validateAndCleanCVData(parsed);
-  } catch (err) {
-    console.error('[CV-Adapter] Failed to parse AI response:', content.text);
+  } catch (err: any) {
+    console.error('[CV-Adapter] CV parsing failed:', err.message);
+    if (err.status) {
+      console.error('[CV-Adapter] API status:', err.status);
+    }
     throw new Error('Impossible d\'analyser le CV');
   }
 }

@@ -209,6 +209,20 @@ export async function getPreviewHTML(cvData: CVData): Promise<string> {
   return response.text();
 }
 
+export async function getFullPreviewHTML(cvData: CVData): Promise<string> {
+  const response = await fetch(`${API_BASE}/full-preview`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ cvData }),
+  });
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Erreur lors de la generation du preview complet');
+  }
+  return response.text();
+}
+
 export async function generatePDF(cvData: CVData): Promise<Blob> {
   const response = await fetch(`${API_BASE}/generate-pdf`, {
     method: 'POST',

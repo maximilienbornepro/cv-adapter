@@ -658,6 +658,13 @@ export function getPreviewHTML(cvData: CVData): string {
 }
 
 /**
+ * Generate full preview HTML with all data displayed without simplification
+ */
+export function getFullPreviewHTML(cvData: CVData): string {
+  return generateCVHTML(cvData);
+}
+
+/**
  * Generate PDF from CV data using Puppeteer
  */
 export async function generatePDF(

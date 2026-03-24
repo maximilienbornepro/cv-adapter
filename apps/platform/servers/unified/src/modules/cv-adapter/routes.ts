@@ -8,7 +8,7 @@ import type { CVData, MergeRequest } from './types.js';
 import { parseCV, parseCVWithVision } from './parseService.js';
 import { processImage } from './imageService.js';
 import { adaptCV, modifyCV } from './adaptService.js';
-import { generatePDF, getPreviewHTML, generateFilename } from './pdfService.js';
+import { generatePDF, getPreviewHTML, getFullPreviewHTML, generateFilename } from './pdfService.js';
 import { autofillForm } from './autofillService.js';
 
 // Configure multer for file uploads (memory storage)
@@ -498,6 +498,20 @@ export function createCvAdapterRoutes(): Router {
     }
 
     const html = getPreviewHTML(cvData);
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  }));
+
+  // POST /full-preview - Get complete HTML preview with all data (no simplification)
+  router.post('/full-preview', asyncHandler(async (req, res) => {
+    const { cvData } = req.body;
+
+    if (!cvData) {
+      res.status(400).json({ error: 'CV data is required' });
+      return;
+    }
+
+    const html = getFullPreviewHTML(cvData);
     res.setHeader('Content-Type', 'text/html');
     res.send(html);
   }));
