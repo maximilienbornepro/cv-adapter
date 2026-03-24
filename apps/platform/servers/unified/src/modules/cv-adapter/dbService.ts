@@ -109,6 +109,16 @@ export async function getCVById(id: number, userId: number): Promise<CV | null> 
   return mapCVRow(rows[0]);
 }
 
+// Public access (for embed mode) - no user check
+export async function getCVByIdPublic(id: number): Promise<CV | null> {
+  const { rows } = await pool.query(
+    'SELECT * FROM cvs WHERE id = $1',
+    [id]
+  );
+  if (rows.length === 0) return null;
+  return mapCVRow(rows[0]);
+}
+
 export async function getAllCVs(userId: number): Promise<CVListItem[]> {
   const { rows } = await pool.query(
     'SELECT id, name, is_default, created_at, updated_at FROM cvs WHERE user_id = $1 ORDER BY is_default DESC, updated_at DESC',

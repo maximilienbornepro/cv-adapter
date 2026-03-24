@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Layout } from '@studio/shared/components';
 import { MyProfilePage } from './components/MyProfilePage';
 import { AdaptCVPage } from './components/AdaptCVPage';
+import { EmbedView } from './components/EmbedView/EmbedView';
 import type { CVData, CV } from './types';
 import { createEmptyCV } from './types';
 import * as api from './services/api';
@@ -9,7 +10,17 @@ import './index.css';
 
 type View = 'profile' | 'adapt';
 
-export default function CvAdapterApp({ onNavigate }: { onNavigate?: (path: string) => void }) {
+interface CvAdapterAppProps {
+  onNavigate?: (path: string) => void;
+  embedMode?: boolean;
+  embedId?: string;
+}
+
+export default function CvAdapterApp({ onNavigate, embedMode, embedId }: CvAdapterAppProps) {
+  // Embed mode: render minimal view
+  if (embedMode && embedId) {
+    return <EmbedView itemId={embedId} />;
+  }
   const [view, setView] = useState<View>('profile');
   const [cv, setCv] = useState<CV | null>(null);
 

@@ -83,6 +83,14 @@ export function AppRouter({ onNavigate, user, onLogout, embedMode, embedId }: Ap
           }
         />
         <Route
+          path="/cv-adapter/*"
+          element={
+            <SuspenseWrapper>
+              <CvAdapterApp onNavigate={onNavigate} embedMode embedId={embedId} />
+            </SuspenseWrapper>
+          }
+        />
+        <Route
           path="*"
           element={
             <div className="embed-error">

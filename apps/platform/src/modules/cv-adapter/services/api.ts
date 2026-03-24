@@ -47,6 +47,12 @@ export async function fetchCV(id: number): Promise<CV> {
   return handleResponse<CV>(response);
 }
 
+// Public embed access (no auth required)
+export async function fetchCVEmbed(id: string): Promise<CV> {
+  const response = await fetch(`${API_BASE}/embed/${id}`);
+  return handleResponse<CV>(response);
+}
+
 export async function updateCV(id: number, updates: { name?: string; cvData?: CVData; isDefault?: boolean }): Promise<CV> {
   const response = await fetch(`${API_BASE}/cvs/${id}`, {
     method: 'PUT',

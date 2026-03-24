@@ -218,6 +218,19 @@ export function MyProfilePage({ onNavigate }: MyProfilePageProps) {
         </span>
         <button
           className="module-header-btn"
+          onClick={() => {
+            if (cv?.id) {
+              const embedUrl = `${window.location.origin}/cv-adapter/?embed=${cv.id}`;
+              navigator.clipboard.writeText(embedUrl);
+              addToast({ type: 'success', message: 'Lien embed copie !' });
+            }
+          }}
+          title="Copier le lien embed"
+        >
+          Embed
+        </button>
+        <button
+          className="module-header-btn"
           onClick={() => setShowImport(true)}
         >
           Importer
