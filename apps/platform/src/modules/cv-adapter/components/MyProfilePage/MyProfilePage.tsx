@@ -464,15 +464,11 @@ export function MyProfilePage({ onNavigate }: MyProfilePageProps) {
                   />
                   <ListEditor
                     label="Projets"
-                    items={exp.projects || []}
-                    onChange={(items) => updateExperience(index, { projects: items })}
+                    items={(exp.projects || []).map(p => typeof p === 'string' ? p : p.title)}
+                    onChange={(items) => updateExperience(index, {
+                      projects: items.map(title => ({ title, description: '', screenshots: [] }))
+                    })}
                     placeholder="Ajouter un projet..."
-                  />
-                  <TagEditor
-                    label="Clients"
-                    tags={exp.clients || []}
-                    onChange={(tags) => updateExperience(index, { clients: tags })}
-                    placeholder="Ajouter un client..."
                   />
                   <TagEditor
                     label="Technologies"
