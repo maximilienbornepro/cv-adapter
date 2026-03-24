@@ -43,6 +43,7 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+      - proxy-network
 
   # Platform Client (SPA)
   platform-client:
@@ -59,6 +60,7 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+      - proxy-network
 
 volumes:
   postgres_data:
@@ -66,3 +68,5 @@ volumes:
 networks:
   app-network:
     driver: bridge
+  proxy-network:
+    external: true
