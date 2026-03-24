@@ -651,14 +651,7 @@ export function generateCVHTML(cvData: CVData): string {
 }
 
 /**
- * Generate preview HTML (same as PDF but optimized for screen)
- */
-export function getPreviewHTML(cvData: CVData): string {
-  return generateCVHTML(cvData);
-}
-
-/**
- * Generate full preview HTML with all data displayed without simplification
+ * Generate full preview HTML with all data displayed
  */
 export function getFullPreviewHTML(cvData: CVData): string {
   return generateCVHTML(cvData);

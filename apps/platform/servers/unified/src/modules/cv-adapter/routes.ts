@@ -8,7 +8,7 @@ import type { CVData, MergeRequest } from './types.js';
 import { parseCV, parseCVWithVision } from './parseService.js';
 import { processImage } from './imageService.js';
 import { adaptCV, modifyCV } from './adaptService.js';
-import { generatePDF, getPreviewHTML, getFullPreviewHTML, generateFilename } from './pdfService.js';
+import { generatePDF, getFullPreviewHTML, generateFilename } from './pdfService.js';
 import { autofillForm } from './autofillService.js';
 
 // Configure multer for file uploads (memory storage)
@@ -36,7 +36,7 @@ const upload = multer({
 export function createCvAdapterRoutes(): Router {
   const router = Router();
 
-  // Public embed route (NO AUTH REQUIRED)
+  // Public embed routes (NO AUTH REQUIRED)
   router.get('/embed/:id', asyncHandler(async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
@@ -51,6 +51,25 @@ export function createCvAdapterRoutes(): Router {
     }
 
     res.json(cv);
+  }));
+
+  // Public HTML preview for embed (NO AUTH REQUIRED)
+  router.get('/embed/:id/preview', asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'ID invalide' });
+      return;
+    }
+
+    const cv = await db.getCVByIdPublic(id);
+    if (!cv) {
+      res.status(404).json({ error: 'CV non trouve' });
+      return;
+    }
+
+    const html = getFullPreviewHTML(cv.cvData);
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
   }));
 
   // All other routes require authentication
@@ -505,21 +524,7 @@ export function createCvAdapterRoutes(): Router {
 
   // ============ CV Preview & PDF Generation ============
 
-  // POST /preview - Get HTML preview of CV
-  router.post('/preview', asyncHandler(async (req, res) => {
-    const { cvData } = req.body;
-
-    if (!cvData) {
-      res.status(400).json({ error: 'CV data is required' });
-      return;
-    }
-
-    const html = getPreviewHTML(cvData);
-    res.setHeader('Content-Type', 'text/html');
-    res.send(html);
-  }));
-
-  // POST /full-preview - Get complete HTML preview with all data (no simplification)
+  // POST /full-preview - Get complete HTML preview of CV
   router.post('/full-preview', asyncHandler(async (req, res) => {
     const { cvData } = req.body;
 

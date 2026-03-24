@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchCVEmbed, getFullPreviewHTML } from '../../services/api';
-import type { CV } from '../../types';
+import { fetchEmbedPreviewHTML } from '../../services/api';
 import './EmbedView.css';
 
 interface EmbedViewProps {
@@ -8,31 +7,25 @@ interface EmbedViewProps {
 }
 
 export function EmbedView({ itemId }: EmbedViewProps) {
-  const [cv, setCv] = useState<CV | null>(null);
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadCV() {
+    async function loadPreview() {
       try {
         setLoading(true);
         setError(null);
-        const data = await fetchCVEmbed(itemId);
-        setCv(data);
-
-        // Generate HTML preview
-        if (data.cvData) {
-          const html = await getFullPreviewHTML(data.cvData);
-          setPreviewHtml(html);
-        }
+        // Fetch HTML preview directly (public endpoint, no auth)
+        const html = await fetchEmbedPreviewHTML(itemId);
+        setPreviewHtml(html);
       } catch (err: any) {
         setError(err.message || 'Erreur lors du chargement');
       } finally {
         setLoading(false);
       }
     }
-    loadCV();
+    loadPreview();
   }, [itemId]);
 
   if (loading) {
@@ -43,24 +36,17 @@ export function EmbedView({ itemId }: EmbedViewProps) {
     return <div className="cv-embed-error">{error}</div>;
   }
 
-  if (!cv) {
+  if (!previewHtml) {
     return <div className="cv-embed-error">CV non trouve</div>;
   }
 
   return (
     <div className="cv-embed-app">
-      {previewHtml ? (
-        <iframe
-          className="cv-embed-iframe"
-          srcDoc={previewHtml}
-          title={cv.name || 'CV Preview'}
-        />
-      ) : (
-        <div className="cv-embed-fallback">
-          <h1>{cv.cvData?.name || 'CV'}</h1>
-          <p>{cv.cvData?.title || ''}</p>
-        </div>
-      )}
+      <iframe
+        className="cv-embed-iframe"
+        srcDoc={previewHtml}
+        title="CV Preview"
+      />
     </div>
   );
 }

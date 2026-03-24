@@ -46,6 +46,53 @@ Le système de génération HTML (`pdfService.ts`) peut potentiellement limiter 
 
 **Rationale**: Cohérent avec l'aperçu existant.
 
+## Sequence Diagrams
+
+### 1. Full Preview Flow (authenticated user)
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant ExportSection
+    participant Backend as POST /full-preview
+    participant pdfService
+    participant generateCVHTML
+    participant Browser as New Tab
+
+    User->>ExportSection: Clicks "Aperçu complet"
+    ExportSection->>Backend: POST /cv-adapter/api/full-preview<br/>body: { cvData }
+    Backend->>pdfService: getFullPreviewHTML(cvData)
+    pdfService->>generateCVHTML: generateCVHTML(cvData, fullVersion=true)
+    generateCVHTML-->>pdfService: Complete HTML (no simplifications)
+    pdfService-->>Backend: HTML string
+    Backend-->>ExportSection: 200 OK + HTML
+    ExportSection->>Browser: window.open() with HTML content
+    Browser-->>User: Displays full CV preview
+```
+
+### 2. Embed Preview Flow (public access, no auth)
+
+```mermaid
+sequenceDiagram
+    actor ExternalUser as External User / iframe
+    participant AppTsx as App.tsx
+    participant EmbedView
+    participant Backend as GET /embed/:id/preview
+    participant pdfService
+    participant generateCVHTML
+
+    ExternalUser->>AppTsx: Access /cv-adapter/?embed=ID
+    AppTsx->>AppTsx: Detects ?embed=ID param
+    AppTsx->>EmbedView: Renders EmbedView(itemId=ID)
+    EmbedView->>Backend: GET /cv-adapter/api/embed/ID/preview<br/>(public, no authMiddleware)
+    Backend->>pdfService: getFullPreviewHTML(cvData)
+    pdfService->>generateCVHTML: generateCVHTML(cvData, fullVersion=true)
+    generateCVHTML-->>pdfService: Complete HTML
+    pdfService-->>Backend: HTML string
+    Backend-->>EmbedView: 200 OK + HTML
+    EmbedView-->>ExternalUser: Renders HTML in iframe
+```
+
 ## Risks / Trade-offs
 
 **[Performance]** → Plus de contenu = page plus lourde

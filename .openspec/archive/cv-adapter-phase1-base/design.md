@@ -109,6 +109,113 @@ POST   /cv-adapter-api/fetch-company-logo  # Auto-fetch logo
 - ListEditor: pour les listes (missions, projets)
 - ImageUploader: pour photos/logos/screenshots
 
+## Sequence Diagrams
+
+### 1. CV CRUD Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Frontend as Frontend (React)
+    participant API as Backend API (Express)
+    participant DB as PostgreSQL (JSONB)
+
+    Note over User, DB: Create a new CV
+    User->>Frontend: Click "New CV"
+    Frontend->>API: POST /cv-adapter-api/cvs
+    API->>DB: INSERT INTO cvs (user_id, cv_data)
+    DB-->>API: New CV row (id, cv_data)
+    API-->>Frontend: 201 { id, cv_data }
+    Frontend-->>User: Display empty CV editor
+
+    Note over User, DB: Read CV (default or by list)
+    User->>Frontend: Open CV Adapter module
+    Frontend->>API: GET /cv-adapter-api/cv
+    API->>DB: SELECT cv_data FROM cvs WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1
+    DB-->>API: CV row
+    API-->>Frontend: 200 { id, cv_data }
+    Frontend-->>User: Render CV sections (expandable)
+
+    Note over User, DB: Update CV (auto-save)
+    User->>Frontend: Edit a section (e.g. experience)
+    Frontend->>Frontend: Debounce changes
+    Frontend->>API: PUT /cv-adapter-api/cv { cv_data }
+    API->>DB: UPDATE cvs SET cv_data = $2, updated_at = NOW() WHERE id = $1
+    DB-->>API: Updated row
+    API-->>Frontend: 200 { id, cv_data }
+    Frontend-->>User: Show "Saved" indicator
+```
+
+### 2. CV Import PDF/DOCX Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Frontend as Frontend (React)
+    participant API as Backend API (Express)
+    participant Parse as parseService
+    participant Claude as Claude Vision API
+    participant DB as PostgreSQL
+
+    User->>Frontend: Select PDF/DOCX file
+    Frontend->>API: POST /cv-adapter-api/upload-cv (multipart file)
+    API->>Parse: Extract text from file
+
+    alt DOCX file
+        Parse->>Parse: mammoth.convertToText()
+        Parse-->>API: Extracted text
+    else PDF file
+        Parse->>Parse: pdf-parse (extract text)
+        alt Sufficient text extracted
+            Parse-->>API: Extracted text
+        else Scanned PDF (little/no text)
+            Parse->>Parse: Convert pages to images
+            Parse->>Claude: Send images + prompt (vision)
+            Claude-->>Parse: Structured CV data (JSON)
+            Parse-->>API: Parsed CV data
+        end
+    end
+
+    API->>Claude: Send extracted text + structuring prompt
+    Claude-->>API: Structured CV data (JSON)
+    API-->>Frontend: 200 { parsed_cv_data }
+
+    Note over User, Frontend: Preview & selective merge
+    Frontend-->>User: Show import preview (diff view)
+    User->>Frontend: Select sections to merge
+    Frontend->>API: POST /cv-adapter-api/import-cv-merge { selections }
+    API->>DB: UPDATE cvs SET cv_data = merged_data
+    DB-->>API: Updated CV
+    API-->>Frontend: 200 { id, cv_data }
+    Frontend-->>User: Display updated CV
+```
+
+### 3. Image Upload Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Frontend as Frontend (React)
+    participant API as Backend API (Express)
+    participant Sharp as imageService (Sharp)
+    participant DB as PostgreSQL (JSONB)
+
+    User->>Frontend: Select image (photo/logo/screenshot)
+    Frontend->>Frontend: Client-side validation (type, max size)
+    Frontend->>API: POST /cv-adapter-api/screenshots/upload (multipart image)
+
+    API->>Sharp: Process image buffer
+    Sharp->>Sharp: Resize (max 800px width)
+    Sharp->>Sharp: Compress (JPEG quality 80 / PNG optimize)
+    Sharp->>Sharp: Convert to base64 data URI
+    Sharp-->>API: base64 string (< 500KB)
+
+    API->>DB: UPDATE cvs SET cv_data = jsonb_set(cv_data, path, base64)
+    DB-->>API: Updated CV row
+    API-->>Frontend: 200 { base64_image, updated_cv_data }
+    Frontend-->>User: Display image in CV editor
+```
+
 ## Risks / Trade-offs
 
 ### R1: Taille des images en base64

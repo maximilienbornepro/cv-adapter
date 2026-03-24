@@ -4,6 +4,7 @@ import type { ToastData } from '@studio/shared/components';
 import { ExpandableSection } from '../ExpandableSection';
 import { TagEditor } from '../TagEditor';
 import { ListEditor } from '../ListEditor';
+import { ProjectEditor } from '../ProjectEditor';
 import { ImageUploader } from '../ImageUploader';
 import { ImportCVModal } from '../ImportCVModal';
 import { ExportSection } from '../ExportSection';
@@ -462,12 +463,10 @@ export function MyProfilePage({ onNavigate }: MyProfilePageProps) {
                     onChange={(items) => updateExperience(index, { missions: items })}
                     placeholder="Ajouter une mission..."
                   />
-                  <ListEditor
+                  <ProjectEditor
                     label="Projets"
-                    items={(exp.projects || []).map(p => typeof p === 'string' ? p : p.title)}
-                    onChange={(items) => updateExperience(index, {
-                      projects: items.map(title => ({ title, description: '', screenshots: [] }))
-                    })}
+                    projects={exp.projects || []}
+                    onChange={(projects) => updateExperience(index, { projects })}
                     placeholder="Ajouter un projet..."
                   />
                   <TagEditor

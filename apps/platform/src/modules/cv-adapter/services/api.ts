@@ -53,6 +53,16 @@ export async function fetchCVEmbed(id: string): Promise<CV> {
   return handleResponse<CV>(response);
 }
 
+// Public embed preview HTML (no auth required)
+export async function fetchEmbedPreviewHTML(id: string): Promise<string> {
+  const response = await fetch(`${API_BASE}/embed/${id}/preview`);
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Erreur lors du chargement du preview');
+  }
+  return response.text();
+}
+
 export async function updateCV(id: number, updates: { name?: string; cvData?: CVData; isDefault?: boolean }): Promise<CV> {
   const response = await fetch(`${API_BASE}/cvs/${id}`, {
     method: 'PUT',
@@ -200,20 +210,6 @@ export async function modifyCV(cvData: CVData, modificationRequest: string): Pro
 }
 
 // ============ CV Preview & PDF ============
-
-export async function getPreviewHTML(cvData: CVData): Promise<string> {
-  const response = await fetch(`${API_BASE}/preview`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ cvData }),
-  });
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'Erreur lors de la generation du preview');
-  }
-  return response.text();
-}
 
 export async function getFullPreviewHTML(cvData: CVData): Promise<string> {
   const response = await fetch(`${API_BASE}/full-preview`, {

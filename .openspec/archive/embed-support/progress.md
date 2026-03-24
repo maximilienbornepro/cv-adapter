@@ -5,7 +5,7 @@
 - Branch: feat/embed-support-module-creator
 - Parent Branch: main
 - Started: 2024-03-23T10:00:00Z
-- Current Phase: implementation
+- Current Phase: archive
 - Status: completed
 
 ## Phases

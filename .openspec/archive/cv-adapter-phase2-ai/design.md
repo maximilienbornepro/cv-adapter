@@ -85,6 +85,80 @@ Le projet de référence `cv-tools` utilise déjà Claude API pour l'adaptation 
 
 **Rationale**: Le preview HTML est instantané et permet d'itérer rapidement. Le preview PDF confirme le rendu final exact.
 
+## Sequence Diagrams
+
+### 1. CV Adaptation Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant Backend as Express Router
+    participant AdaptService as adaptService
+    participant Claude as Claude Sonnet API
+
+    User->>Frontend: Paste job offer text
+    Frontend->>Backend: POST /cv-adapter/api/adapt<br/>{cvData, jobOffer}
+    Backend->>AdaptService: adaptCV(cvData, jobOffer)
+    AdaptService->>AdaptService: Build prompt with rules:<br/>- Modify 1st experience only<br/>- Keep original missions, add 1-2<br/>- Add 1 project, reformulate 1-2<br/>- Max 1 skill per category
+    AdaptService->>Claude: messages.create({model: claude-sonnet, prompt})
+    Claude-->>AdaptService: Adapted CV content (JSON)
+    AdaptService->>AdaptService: Parse and validate response
+    AdaptService-->>Backend: Adapted CVData
+    Backend-->>Frontend: 200 OK {adaptedCvData}
+    Frontend->>Frontend: Show diff (original vs adapted)
+    Frontend-->>User: Display adaptation preview
+```
+
+### 2. PDF Generation Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant Backend as Express Router
+    participant PdfService as pdfService
+    participant HTMLGen as generateCVHTML
+    participant Puppeteer
+
+    User->>Frontend: Click "Generate PDF"
+    Frontend->>Backend: POST /cv-adapter/api/generate-pdf<br/>{cvData}
+    Backend->>PdfService: generatePDF(cvData)
+    PdfService->>PdfService: Convert images (photo, logos)<br/>to base64 data URLs
+    PdfService->>HTMLGen: generateCVHTML(cvData, imagesBase64)
+    HTMLGen-->>PdfService: Full HTML string<br/>(2-col layout, A4, inline styles)
+    PdfService->>Puppeteer: launch browser
+    Puppeteer->>Puppeteer: setContent(html)
+    Puppeteer->>Puppeteer: pdf({format: 'A4', margins: 15mm})
+    Puppeteer-->>PdfService: PDF buffer
+    PdfService->>PdfService: Close browser
+    PdfService-->>Backend: PDF buffer
+    Backend-->>Frontend: 200 OK (application/pdf)<br/>Content-Disposition: attachment
+    Frontend-->>User: Download PDF file
+```
+
+### 3. HTML Preview Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant Backend as Express Router
+    participant PdfService as pdfService
+    participant HTMLGen as generateCVHTML
+
+    User->>Frontend: Click "Aperçu"
+    Frontend->>Backend: POST /cv-adapter/api/full-preview<br/>{cvData}
+    Backend->>PdfService: generatePreviewHTML(cvData)
+    PdfService->>PdfService: Convert images (photo, logos)<br/>to base64 data URLs
+    PdfService->>HTMLGen: generateCVHTML(cvData, imagesBase64)
+    HTMLGen-->>PdfService: Full HTML string<br/>(2-col layout, inline styles, fonts)
+    PdfService-->>Backend: HTML string
+    Backend-->>Frontend: 200 OK (text/html)
+    Frontend->>Frontend: Open HTML in new tab<br/>(window.open with blob URL)
+    Frontend-->>User: New tab with CV preview
+```
+
 ## Risks / Trade-offs
 
 ### [Puppeteer lourd en production]
