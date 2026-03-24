@@ -462,6 +462,18 @@ export function MyProfilePage({ onNavigate }: MyProfilePageProps) {
                     onChange={(items) => updateExperience(index, { missions: items })}
                     placeholder="Ajouter une mission..."
                   />
+                  <ListEditor
+                    label="Projets"
+                    items={exp.projects || []}
+                    onChange={(items) => updateExperience(index, { projects: items })}
+                    placeholder="Ajouter un projet..."
+                  />
+                  <TagEditor
+                    label="Clients"
+                    tags={exp.clients || []}
+                    onChange={(tags) => updateExperience(index, { clients: tags })}
+                    placeholder="Ajouter un client..."
+                  />
                   <TagEditor
                     label="Technologies"
                     tags={exp.technologies || []}
