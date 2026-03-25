@@ -41,12 +41,12 @@ export default defineConfig({
           environment: 'node',
         },
       },
-      // Server: cv-adapter
+      // Server: mon-cv
       {
         test: {
-          name: 'server-cv-adapter',
+          name: 'server-mon-cv',
           root: '.',
-          include: ['apps/platform/servers/unified/src/modules/__tests__/cv-adapter/**/*.test.ts'],
+          include: ['apps/platform/servers/unified/src/modules/__tests__/mon-cv/**/*.test.ts'],
           environment: 'node',
         },
       },
@@ -69,9 +69,9 @@ export default defineConfig({
       },
       {
         test: {
-          name: 'client-cv-adapter',
+          name: 'client-mon-cv',
           root: '.',
-          include: ['apps/platform/src/modules/cv-adapter/__tests__/**/*.test.ts'],
+          include: ['apps/platform/src/modules/mon-cv/__tests__/**/*.test.ts'],
           environment: 'node',
         },
       },

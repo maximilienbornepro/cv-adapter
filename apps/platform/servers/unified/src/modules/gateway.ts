@@ -7,7 +7,7 @@ import { authMiddleware, adminMiddleware } from '../middleware/index.js';
 import { asyncHandler } from '@studio/shared/server';
 
 // Available apps for permissions
-const AVAILABLE_APPS = ['products', 'admin', 'cv-adapter'];
+const AVAILABLE_APPS = ['products', 'admin', 'mon-cv'];
 
 let pool: Pool;
 

@@ -7,7 +7,7 @@ import { errorMiddleware } from '@studio/shared/server';
 // Import modules
 import { initGateway, createGatewayRouter } from './modules/gateway.js';
 import { initProducts, createProductsRouter } from './modules/products/index.js';
-import { initCvAdapter, createCvAdapterRouter } from './modules/cv-adapter/index.js';
+import { initMonCv, createMonCvRouter } from './modules/mon-cv/index.js';
 
 const app = express();
 
@@ -36,9 +36,9 @@ async function init() {
   await initProducts();
   app.use('/products/api', createProductsRouter());
 
-  // CV Adapter
-  await initCvAdapter();
-  app.use('/cv-adapter/api', createCvAdapterRouter());
+  // Mon CV
+  await initMonCv();
+  app.use('/mon-cv/api', createMonCvRouter());
 
   // Error handling
   app.use(errorMiddleware);

@@ -19,10 +19,10 @@ export default defineConfig({
         target: UNIFIED_SERVER,
         rewrite: (path) => path.replace(/^\/products-api/, '/products/api'),
       },
-      // CV Adapter API: /cv-adapter-api/* → /cv-adapter/api/*
-      '/cv-adapter-api': {
+      // Mon CV API: /mon-cv-api/* → /mon-cv/api/*
+      '/mon-cv-api': {
         target: UNIFIED_SERVER,
-        rewrite: (path) => path.replace(/^\/cv-adapter-api/, '/cv-adapter/api'),
+        rewrite: (path) => path.replace(/^\/mon-cv-api/, '/mon-cv/api'),
       },
       // Gateway APIs (auth, admin)
       '/api/auth': {

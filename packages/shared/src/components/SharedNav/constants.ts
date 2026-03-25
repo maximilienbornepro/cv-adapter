@@ -35,12 +35,12 @@ export const APPS: AppInfo[] = [
     category: 'main',
   },
   {
-    id: 'cv-adapter',
-    name: 'CV Adapter',
+    id: 'mon-cv',
+    name: 'Mon CV',
     description: 'Gestion et adaptation de CV',
     color: '#10b981',
     gradientEnd: '#059669',
-    path: '/cv-adapter',
+    path: '/mon-cv',
     category: 'main',
   },
 ];

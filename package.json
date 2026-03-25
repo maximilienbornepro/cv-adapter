@@ -27,8 +27,8 @@
     "test:client": "vitest run --project 'client-*'",
     "test:client:gateway": "vitest run --project client-gateway",
     "test:client:products": "vitest run --project client-products",
-    "test:client:cv-adapter": "vitest run --project client-cv-adapter",
-    "test:server:cv-adapter": "vitest run --project server-cv-adapter",
+    "test:client:mon-cv": "vitest run --project client-mon-cv",
+    "test:server:mon-cv": "vitest run --project server-mon-cv",
     "test:shared": "vitest run --project shared",
     "predeploy": "npm test"
   },

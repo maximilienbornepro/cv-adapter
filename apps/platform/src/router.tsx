@@ -6,7 +6,7 @@ import { AdminPage } from './modules/gateway/components/AdminPage';
 
 // Lazy load modules
 const ProductsApp = lazy(() => import('./modules/products/App'));
-const CvAdapterApp = lazy(() => import('./modules/cv-adapter/App'));
+const MonCvApp = lazy(() => import('./modules/mon-cv/App'));
 
 interface User {
   id: number;
@@ -83,10 +83,10 @@ export function AppRouter({ onNavigate, user, onLogout, embedMode, embedId }: Ap
           }
         />
         <Route
-          path="/cv-adapter/*"
+          path="/mon-cv/*"
           element={
             <SuspenseWrapper>
-              <CvAdapterApp onNavigate={onNavigate} embedMode embedId={embedId} />
+              <MonCvApp onNavigate={onNavigate} embedMode embedId={embedId} />
             </SuspenseWrapper>
           }
         />
@@ -118,10 +118,10 @@ export function AppRouter({ onNavigate, user, onLogout, embedMode, embedId }: Ap
         }
       />
       <Route
-        path="/cv-adapter/*"
+        path="/mon-cv/*"
         element={
           <SuspenseWrapper>
-            <CvAdapterApp onNavigate={onNavigate} />
+            <MonCvApp onNavigate={onNavigate} />
           </SuspenseWrapper>
         }
       />

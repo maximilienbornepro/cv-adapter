@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon CV</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup">
+    <header class="popup-header">
+      <h1>Mon CV</h1>
+      <span class="status-indicator" id="statusIndicator"></span>
+    </header>
+
+    <div class="popup-content">
+      <div id="loadingState" class="state">
+        <div class="loader"></div>
+        <p>Chargement...</p>
+      </div>
+
+      <div id="notConnectedState" class="state" style="display: none;">
+        <p class="error-message">Non connecte</p>
+        <p class="hint">Veuillez vous connecter sur Mon CV</p>
+        <a href="#" id="openPlatformBtn" class="btn btn-primary">Ouvrir Mon CV</a>
+      </div>
+
+      <div id="noCVState" class="state" style="display: none;">
+        <p class="error-message">Aucun CV</p>
+        <p class="hint">Veuillez d'abord creer votre CV</p>
+        <a href="#" id="createCVBtn" class="btn btn-primary">Creer mon CV</a>
+      </div>
+
+      <div id="readyState" class="state" style="display: none;">
+        <div class="cv-info">
+          <p class="cv-name" id="cvName">-</p>
+          <p class="cv-title" id="cvTitle">-</p>
+        </div>
+
+        <div class="form-info" id="formInfo">
+          <p><span id="fieldCount">0</span> champs detectes</p>
+        </div>
+
+        <div class="actions">
+          <button id="autofillBtn" class="btn btn-primary" disabled>
+            Remplir le formulaire
+          </button>
+        </div>
+
+        <div id="resultMessage" class="result-message" style="display: none;"></div>
+      </div>
+
+      <div id="errorState" class="state" style="display: none;">
+        <p class="error-message" id="errorMessage">Erreur</p>
+        <button id="retryBtn" class="btn btn-secondary">Reessayer</button>
+      </div>
+    </div>
+
+    <footer class="popup-footer">
+      <span class="version">v1.0.0 (Dev)</span>
+    </footer>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
