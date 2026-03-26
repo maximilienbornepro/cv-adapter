@@ -466,7 +466,7 @@ export function ReviewWizard({ docId, onBack, onCopyReady, onSaveAllReady, onUns
 
       const firstSubject = await createSubject(newSection.id, {
         title: 'Premier sujet',
-        situation: '• À compléter',
+        situation: 'À compléter',
         status: '🟡 en cours',
         responsibility: '@Responsable'
       });
