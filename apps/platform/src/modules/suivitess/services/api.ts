@@ -207,3 +207,72 @@ export async function getSnapshotDiff(docId: string): Promise<SnapshotDiff> {
   if (!response.ok) throw new Error('Failed to fetch diff');
   return response.json();
 }
+
+// ==================== RECORDER ====================
+
+export interface RecordingStatus {
+  recordingId: number | null;
+  status: 'idle' | 'joining' | 'recording' | 'processing' | 'done' | 'error';
+  captionCount: number;
+  startedAt: string | null;
+  error: string | null;
+}
+
+export interface Suggestion {
+  id: number;
+  recordingId: number;
+  documentId: string;
+  type: 'new-subject' | 'update-situation' | 'new-section';
+  targetSectionId: string | null;
+  targetSubjectId: string | null;
+  proposedTitle: string | null;
+  proposedSituation: string | null;
+  rationale: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: string;
+}
+
+export async function startRecording(docId: string, meetingUrl: string): Promise<{ recordingId: number; status: string }> {
+  const response = await fetch(`${API_BASE}/documents/${docId}/recorder/start`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ meetingUrl }),
+  });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({ error: 'Erreur réseau' }));
+    throw new Error(err.error || 'Impossible de démarrer l\'enregistrement');
+  }
+  return response.json();
+}
+
+export async function getRecordingStatus(docId: string): Promise<RecordingStatus> {
+  const response = await fetch(`${API_BASE}/documents/${docId}/recorder/status`, { credentials: 'include' });
+  if (!response.ok) throw new Error('Failed to fetch recorder status');
+  return response.json();
+}
+
+export async function stopRecording(docId: string): Promise<void> {
+  await fetch(`${API_BASE}/documents/${docId}/recorder/stop`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+}
+
+export async function fetchSuggestions(docId: string): Promise<Suggestion[]> {
+  const response = await fetch(`${API_BASE}/documents/${docId}/suggestions`, { credentials: 'include' });
+  if (!response.ok) return [];
+  return response.json();
+}
+
+export async function acceptSuggestion(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE}/suggestions/${id}/accept`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!response.ok) throw new Error('Failed to accept suggestion');
+}
+
+export async function rejectSuggestion(id: number): Promise<void> {
+  await fetch(`${API_BASE}/suggestions/${id}/reject`, { method: 'POST', credentials: 'include' });
+}

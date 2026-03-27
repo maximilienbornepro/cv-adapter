@@ -12,6 +12,7 @@ import { initSuivitess, createSuivitessRouter } from './modules/suivitess/index.
 import { initDelivery, createDeliveryRouter } from './modules/delivery/index.js';
 import { initMonCv, createMonCvRouter } from './modules/mon-cv/index.js';
 import { initConnectors, createConnectorsRouter } from './modules/connectors/index.js';
+import { initRag, createRagRouter } from './modules/rag/index.js';
 
 const app = express();
 
@@ -59,6 +60,10 @@ async function init() {
   // Connectors (platform-level feature)
   await initConnectors();
   app.use('/api/connectors', createConnectorsRouter());
+
+  // RAG
+  await initRag();
+  app.use('/rag/api', createRagRouter());
 
   // Error handling
   app.use(errorMiddleware);

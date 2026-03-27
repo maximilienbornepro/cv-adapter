@@ -148,6 +148,42 @@ export default defineConfig({
           environment: 'node',
         },
       },
+      // Server: rag
+      {
+        test: {
+          name: 'server-rag',
+          root: '.',
+          include: ['apps/platform/servers/unified/src/modules/__tests__/rag/**/*.test.ts'],
+          environment: 'node',
+        },
+      },
+      // Client: rag
+      {
+        test: {
+          name: 'client-rag',
+          root: '.',
+          include: ['apps/platform/src/modules/rag/__tests__/**/*.test.ts'],
+          environment: 'node',
+        },
+      },
+      // Server: suivitess-recorder
+      {
+        test: {
+          name: 'server-suivitess-recorder',
+          root: '.',
+          include: ['apps/platform/servers/unified/src/modules/__tests__/suivitess/recorder.test.ts'],
+          environment: 'node',
+        },
+      },
+      // Client: suivitess-recorder
+      {
+        test: {
+          name: 'client-suivitess-recorder',
+          root: '.',
+          include: ['apps/platform/src/modules/suivitess/__tests__/recorder.test.ts'],
+          environment: 'node',
+        },
+      },
     ],
   },
 });

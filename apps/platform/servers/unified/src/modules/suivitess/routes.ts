@@ -3,6 +3,8 @@ import { authMiddleware } from '../../middleware/index.js';
 import { asyncHandler } from '@boilerplate/shared/server';
 import * as db from './dbService.js';
 import type { DocumentWithSections } from './dbService.js';
+import * as recorder from './recorderService.js';
+import { acceptSuggestion } from './suggestionsService.js';
 
 export function createRoutes(): Router {
   const router = Router();
@@ -434,6 +436,96 @@ export function createRoutes(): Router {
       changesCount: changes.length,
       changes,
     });
+  }));
+
+  // ==================== RECORDER ====================
+
+  // POST /documents/:docId/recorder/start
+  router.post('/documents/:docId/recorder/start', asyncHandler(async (req, res) => {
+    const { docId } = req.params;
+    const { meetingUrl } = req.body;
+
+    if (!meetingUrl || typeof meetingUrl !== 'string') {
+      res.status(400).json({ error: 'meetingUrl est requis' });
+      return;
+    }
+
+    // Basic Teams URL validation
+    const teamsUrlPattern = /teams\.microsoft\.com|teams\.live\.com/i;
+    if (!teamsUrlPattern.test(meetingUrl)) {
+      res.status(400).json({ error: 'URL invalide — doit être un lien Microsoft Teams' });
+      return;
+    }
+
+    const doc = await db.getDocumentWithSections(docId);
+    if (!doc) {
+      res.status(404).json({ error: 'Document not found' });
+      return;
+    }
+
+    try {
+      const recordingId = await recorder.startRecording(docId, meetingUrl);
+      res.json({ recordingId, status: 'joining' });
+    } catch (err: any) {
+      res.status(409).json({ error: err.message });
+    }
+  }));
+
+  // GET /documents/:docId/recorder/status
+  router.get('/documents/:docId/recorder/status', asyncHandler(async (req, res) => {
+    const { docId } = req.params;
+    const recording = await db.getRecordingByDocument(docId);
+    const active = recorder.getActiveRecordingStatus(docId);
+
+    if (!recording) {
+      res.json({ recordingId: null, status: 'idle', captionCount: 0, startedAt: null, error: null });
+      return;
+    }
+
+    res.json({
+      recordingId: recording.id,
+      status: recording.status,
+      captionCount: active?.captionCount ?? recording.captionCount,
+      startedAt: recording.startedAt,
+      error: recording.error,
+    });
+  }));
+
+  // POST /documents/:docId/recorder/stop
+  router.post('/documents/:docId/recorder/stop', asyncHandler(async (req, res) => {
+    const { docId } = req.params;
+    await recorder.stopRecording(docId);
+    res.json({ success: true });
+  }));
+
+  // GET /documents/:docId/suggestions
+  router.get('/documents/:docId/suggestions', asyncHandler(async (req, res) => {
+    const { docId } = req.params;
+    const suggestions = await db.getSuggestions(docId);
+    res.json(suggestions);
+  }));
+
+  // POST /suggestions/:id/accept
+  router.post('/suggestions/:id/accept', asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) { res.status(400).json({ error: 'Invalid suggestion id' }); return; }
+
+    const suggestion = await db.updateSuggestionStatus(id, 'accepted');
+    if (!suggestion) { res.status(404).json({ error: 'Suggestion not found' }); return; }
+
+    await acceptSuggestion(suggestion, suggestion.documentId);
+    res.json({ success: true });
+  }));
+
+  // POST /suggestions/:id/reject
+  router.post('/suggestions/:id/reject', asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) { res.status(400).json({ error: 'Invalid suggestion id' }); return; }
+
+    const suggestion = await db.updateSuggestionStatus(id, 'rejected');
+    if (!suggestion) { res.status(404).json({ error: 'Suggestion not found' }); return; }
+
+    res.json({ success: true });
   }));
 
   return router;

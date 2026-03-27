@@ -11,6 +11,7 @@ const RoadmapApp = lazy(() => import('./modules/roadmap/App'));
 const SuivitessApp = lazy(() => import('./modules/suivitess/App'));
 const DeliveryApp = lazy(() => import('./modules/delivery/App'));
 const MonCvApp = lazy(() => import('./modules/mon-cv/App'));
+const RagApp = lazy(() => import('./modules/rag/App'));
 
 interface User {
   id: number;
@@ -116,6 +117,14 @@ export function AppRouter({ onNavigate, user, onLogout, embedMode, embedId }: Ap
           }
         />
         <Route
+          path="/rag/*"
+          element={
+            <SuspenseWrapper>
+              <RagApp onNavigate={onNavigate} embedMode embedId={embedId} />
+            </SuspenseWrapper>
+          }
+        />
+        <Route
           path="*"
           element={
             <div className="embed-error">
@@ -186,6 +195,14 @@ export function AppRouter({ onNavigate, user, onLogout, embedMode, embedId }: Ap
         element={
           <SuspenseWrapper>
             <MonCvApp onNavigate={onNavigate} />
+          </SuspenseWrapper>
+        }
+      />
+      <Route
+        path="/rag/*"
+        element={
+          <SuspenseWrapper>
+            <RagApp onNavigate={onNavigate} />
           </SuspenseWrapper>
         }
       />

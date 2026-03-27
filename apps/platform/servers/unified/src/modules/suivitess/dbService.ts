@@ -4,6 +4,7 @@ import { config } from '../../config.js';
 const { Pool } = pg;
 
 let pool: pg.Pool;
+export { pool };
 
 // ==================== TYPES ====================
 
@@ -457,4 +458,142 @@ export async function verifyTargetSection(sectionId: string, docId: string): Pro
   );
   if (result.rows.length === 0) return false;
   return result.rows[0].document_id === docId;
+}
+
+// ==================== RECORDER ====================
+
+export interface CaptionEntry {
+  speaker: string;
+  text: string;
+  timestamp: number;
+}
+
+export interface Recording {
+  id: number;
+  documentId: string;
+  meetingUrl: string;
+  status: string;
+  transcriptJson: CaptionEntry[] | null;
+  captionCount: number;
+  error: string | null;
+  startedAt: string;
+  endedAt: string | null;
+  createdAt: string;
+}
+
+function formatRecording(row: any): Recording {
+  return {
+    id: row.id,
+    documentId: row.document_id,
+    meetingUrl: row.meeting_url,
+    status: row.status,
+    transcriptJson: row.transcript_json,
+    captionCount: row.caption_count,
+    error: row.error,
+    startedAt: row.started_at?.toISOString(),
+    endedAt: row.ended_at?.toISOString() ?? null,
+    createdAt: row.created_at.toISOString(),
+  };
+}
+
+export async function createRecording(documentId: string, meetingUrl: string): Promise<Recording> {
+  const result = await pool.query(
+    `INSERT INTO suivitess_recordings (document_id, meeting_url, status)
+     VALUES ($1, $2, 'joining') RETURNING *`,
+    [documentId, meetingUrl]
+  );
+  return formatRecording(result.rows[0]);
+}
+
+export async function updateRecordingStatus(id: number, status: string, error: string | null = null): Promise<void> {
+  const endedAt = ['done', 'error'].includes(status) ? 'NOW()' : 'NULL';
+  await pool.query(
+    `UPDATE suivitess_recordings SET status = $1, error = $2, ended_at = ${endedAt === 'NOW()' ? 'NOW()' : 'NULL'} WHERE id = $3`,
+    [status, error, id]
+  );
+}
+
+export async function updateCaptionCount(id: number, count: number): Promise<void> {
+  await pool.query('UPDATE suivitess_recordings SET caption_count = $1 WHERE id = $2', [count, id]);
+}
+
+export async function saveTranscript(id: number, transcript: CaptionEntry[], captionCount: number): Promise<void> {
+  await pool.query(
+    `UPDATE suivitess_recordings SET transcript_json = $1, caption_count = $2, ended_at = NOW() WHERE id = $3`,
+    [JSON.stringify(transcript), captionCount, id]
+  );
+}
+
+export async function getRecordingByDocument(documentId: string): Promise<Recording | null> {
+  const result = await pool.query(
+    `SELECT * FROM suivitess_recordings WHERE document_id = $1 ORDER BY created_at DESC LIMIT 1`,
+    [documentId]
+  );
+  return result.rows[0] ? formatRecording(result.rows[0]) : null;
+}
+
+// ==================== SUGGESTIONS ====================
+
+export interface Suggestion {
+  id: number;
+  recordingId: number;
+  documentId: string;
+  type: 'new-subject' | 'update-situation' | 'new-section';
+  targetSectionId: string | null;
+  targetSubjectId: string | null;
+  proposedTitle: string | null;
+  proposedSituation: string | null;
+  rationale: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: string;
+}
+
+function formatSuggestion(row: any): Suggestion {
+  return {
+    id: row.id,
+    recordingId: row.recording_id,
+    documentId: row.document_id,
+    type: row.type,
+    targetSectionId: row.target_section_id,
+    targetSubjectId: row.target_subject_id,
+    proposedTitle: row.proposed_title,
+    proposedSituation: row.proposed_situation,
+    rationale: row.rationale,
+    status: row.status,
+    createdAt: row.created_at.toISOString(),
+  };
+}
+
+export async function createSuggestion(
+  recordingId: number,
+  documentId: string,
+  data: Omit<Suggestion, 'id' | 'recordingId' | 'documentId' | 'status' | 'createdAt'>
+): Promise<Suggestion> {
+  const result = await pool.query(
+    `INSERT INTO suivitess_suggestions
+     (recording_id, document_id, type, target_section_id, target_subject_id, proposed_title, proposed_situation, rationale)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+    [
+      recordingId, documentId, data.type,
+      data.targetSectionId ?? null, data.targetSubjectId ?? null,
+      data.proposedTitle ?? null, data.proposedSituation ?? null, data.rationale,
+    ]
+  );
+  return formatSuggestion(result.rows[0]);
+}
+
+export async function getSuggestions(documentId: string): Promise<Suggestion[]> {
+  const result = await pool.query(
+    `SELECT * FROM suivitess_suggestions WHERE document_id = $1 AND status = 'pending' ORDER BY created_at ASC`,
+    [documentId]
+  );
+  return result.rows.map(formatSuggestion);
+}
+
+export async function updateSuggestionStatus(id: number, status: 'accepted' | 'rejected'): Promise<Suggestion | null> {
+  const result = await pool.query(
+    `UPDATE suivitess_suggestions SET status = $1 WHERE id = $2 RETURNING *`,
+    [status, id]
+  );
+  return result.rows[0] ? formatSuggestion(result.rows[0]) : null;
 }

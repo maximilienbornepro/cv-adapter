@@ -70,6 +70,15 @@ export const APPS: AppInfo[] = [
     path: '/mon-cv',
     category: 'main',
   },
+  {
+    id: 'rag',
+    name: 'Assistant RAG',
+    description: 'Chat intelligent sur vos documents et Confluence',
+    color: '#f59e0b',
+    gradientEnd: '#d97706',
+    path: '/rag',
+    category: 'main',
+  },
 ];
 
 export function getAppUrl(appId: string): string {

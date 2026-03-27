@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Layout, LoadingSpinner, ModuleHeader } from '@boilerplate/shared/components';
-import type { Planning, Task, Dependency, ViewMode, Marker } from './types';
+import type { Planning, Task, Dependency, ViewMode, Marker, PlanningFormData } from './types';
 import * as api from './services/api';
 import { getNextColor } from './utils/taskUtils';
 import { PlanningList } from './components/PlanningList/PlanningList';
@@ -160,6 +160,14 @@ function AppContentInner({ onNavigate }: { onNavigate?: (path: string) => void }
         startDate: start.toISOString().split('T')[0],
         endDate: end.toISOString().split('T')[0],
       });
+      setPlannings(prev => [planning, ...prev]);
+      setSelectedPlanning(planning);
+    } catch { setError('Erreur lors de la creation du planning'); }
+  };
+
+  const handleCreatePlanningFromForm = async (data: PlanningFormData) => {
+    try {
+      const planning = await api.createPlanning(data);
       setPlannings(prev => [planning, ...prev]);
       setSelectedPlanning(planning);
     } catch { setError('Erreur lors de la creation du planning'); }
@@ -380,9 +388,12 @@ function AppContentInner({ onNavigate }: { onNavigate?: (path: string) => void }
           </ModuleHeader>
           <PlanningList
             plannings={plannings}
+            activePlanningId={selectedPlanning?.id ?? null}
             onSelect={setSelectedPlanning}
-            onEdit={handleEditPlanning}
+            onCreate={handleCreatePlanningFromForm}
+            onUpdate={handleEditPlanning}
             onDelete={handleDeletePlanning}
+            onClose={() => onNavigate ? onNavigate('/') : (window.location.href = '/')}
           />
         </>
       )}
