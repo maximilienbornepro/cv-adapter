@@ -35,6 +35,7 @@
     "test:client:delivery": "vitest run --project client-delivery",
     "test:server:mon-cv": "vitest run --project server-mon-cv",
     "test:client:mon-cv": "vitest run --project client-mon-cv",
+    "test:server:connectors": "vitest run --project server-connectors",
     "test:shared": "vitest run --project shared",
     "predeploy": "npm test"
   },

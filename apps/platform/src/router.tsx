@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { LoadingSpinner, SharedNav } from '@boilerplate/shared/components';
 import { LandingPage } from './modules/gateway/components/LandingPage';
 import { AdminPage } from './modules/gateway/components/AdminPage';
+import { ConnectorsPage } from './modules/gateway/components/ConnectorsPage';
 
 // Lazy load modules
 const CongesApp = lazy(() => import('./modules/conges/App'));
@@ -33,11 +34,13 @@ const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
   </Suspense>
 );
 
+type HomeView = 'landing' | 'admin' | 'connectors';
+
 function HomePage({ onNavigate, user }: { onNavigate?: (path: string) => void; user?: User | null }) {
-  const [showAdmin, setShowAdmin] = useState(false);
+  const [view, setView] = useState<HomeView>('landing');
 
   // Admin view
-  if (showAdmin && user?.isAdmin) {
+  if (view === 'admin' && user?.isAdmin) {
     return (
       <>
         <SharedNav allowedAppIds={user.permissions} onNavigate={onNavigate}>
@@ -46,7 +49,23 @@ function HomePage({ onNavigate, user }: { onNavigate?: (path: string) => void; u
           </div>
         </SharedNav>
         <main style={{ paddingTop: 0 }}>
-          <AdminPage onBack={() => setShowAdmin(false)} />
+          <AdminPage onBack={() => setView('landing')} />
+        </main>
+      </>
+    );
+  }
+
+  // Connectors view
+  if (view === 'connectors') {
+    return (
+      <>
+        <SharedNav allowedAppIds={user?.permissions} onNavigate={onNavigate}>
+          <div className="gateway-nav-actions">
+            <span className="nav-user">{user?.email}</span>
+          </div>
+        </SharedNav>
+        <main style={{ paddingTop: 0 }}>
+          <ConnectorsPage onBack={() => setView('landing')} />
         </main>
       </>
     );
@@ -58,10 +77,13 @@ function HomePage({ onNavigate, user }: { onNavigate?: (path: string) => void; u
       <SharedNav allowedAppIds={user?.permissions} onNavigate={onNavigate}>
         <div className="gateway-nav-actions">
           {user?.isAdmin && (
-            <button className="nav-btn admin-btn" onClick={() => setShowAdmin(true)}>
+            <button className="nav-btn admin-btn" onClick={() => setView('admin')}>
               Administration
             </button>
           )}
+          <button className="nav-btn admin-btn" onClick={() => setView('connectors')}>
+            Connecteurs
+          </button>
           <span className="nav-user">{user?.email}</span>
         </div>
       </SharedNav>
@@ -111,6 +133,21 @@ export function AppRouter({ onNavigate, user, onLogout, embedMode, embedId }: Ap
       <Route
         path="/"
         element={<HomePage onNavigate={onNavigate} user={user} />}
+      />
+      <Route
+        path="/settings/connectors"
+        element={
+          <>
+            <SharedNav allowedAppIds={user?.permissions} onNavigate={onNavigate}>
+              <div className="gateway-nav-actions">
+                <span className="nav-user">{user?.email}</span>
+              </div>
+            </SharedNav>
+            <main style={{ paddingTop: 0 }}>
+              <ConnectorsPage onBack={() => onNavigate ? onNavigate('/') : (window.location.href = '/')} />
+            </main>
+          </>
+        }
       />
       <Route
         path="/conges/*"

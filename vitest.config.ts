@@ -130,6 +130,15 @@ export default defineConfig({
           environment: 'node',
         },
       },
+      // Server: connectors
+      {
+        test: {
+          name: 'server-connectors',
+          root: '.',
+          include: ['apps/platform/servers/unified/src/modules/__tests__/connectors/**/*.test.ts'],
+          environment: 'node',
+        },
+      },
     ],
   },
 });

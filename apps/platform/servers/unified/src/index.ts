@@ -11,6 +11,7 @@ import { initRoadmap, createRoadmapRouter } from './modules/roadmap/index.js';
 import { initSuivitess, createSuivitessRouter } from './modules/suivitess/index.js';
 import { initDelivery, createDeliveryRouter } from './modules/delivery/index.js';
 import { initMonCv, createMonCvRouter } from './modules/mon-cv/index.js';
+import { initConnectors, createConnectorsRouter } from './modules/connectors/index.js';
 
 const app = express();
 
@@ -54,6 +55,10 @@ async function init() {
   // Mon CV
   await initMonCv();
   app.use('/mon-cv/api', createMonCvRouter());
+
+  // Connectors (platform-level feature)
+  await initConnectors();
+  app.use('/api/connectors', createConnectorsRouter());
 
   // Error handling
   app.use(errorMiddleware);
