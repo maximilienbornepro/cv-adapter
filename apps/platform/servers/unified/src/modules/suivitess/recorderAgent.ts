@@ -35,15 +35,18 @@ async function main() {
   send({ type: 'status', status: 'joining' });
 
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,  // Teams blocks headless — must use visible browser
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
       '--disable-blink-features=AutomationControlled',
-      '--use-fake-ui-for-media-stream',     // auto-accept mic/camera
+      '--use-fake-ui-for-media-stream',     // auto-accept mic/camera prompts
+      '--use-fake-device-for-media-stream', // no real mic/camera needed
       '--disable-infobars',
+      '--disable-notifications',
       '--lang=fr-FR',
+      '--window-size=1280,720',
     ],
     defaultViewport: { width: 1280, height: 720 },
   });
