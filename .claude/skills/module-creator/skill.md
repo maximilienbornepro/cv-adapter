@@ -15,7 +15,7 @@ invocation: user
 cat .claude/config 2>/dev/null | grep OPENSPEC_MODE || echo "OPENSPEC_MODE=on (defaut)"
 
 # 2. Si OpenSpec est actif, une spec DOIT exister
-ls .openspec/changes/*/progress.md
+ls openspec/changes/*/progress.md
 ```
 
 **Si aucune spec n'existe :**

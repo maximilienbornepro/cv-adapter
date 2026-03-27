@@ -409,7 +409,7 @@ else
 fi
 
 # Initialiser OpenSpec dans le projet
-if [ ! -d ".openspec" ]; then
+if [ ! -d "openspec" ]; then
   log "Initialisation d'OpenSpec dans le projet..."
   if command -v openspec &> /dev/null; then
     openspec init --yes 2>/dev/null || openspec init 2>/dev/null || warn "Initialisation OpenSpec manuelle requise: openspec init"
