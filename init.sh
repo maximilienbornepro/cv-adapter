@@ -84,6 +84,14 @@ read -r confirm
 [[ "$confirm" == "n" || "$confirm" == "N" ]] && { log "Annulé."; exit 0; }
 
 echo ""
+
+# =============================================================================
+# Sélection des modules
+# =============================================================================
+
+./select-modules.sh
+
+echo ""
 log "Initialisation en cours..."
 echo ""
 
