@@ -36,6 +36,10 @@
     "test:server:mon-cv": "vitest run --project server-mon-cv",
     "test:client:mon-cv": "vitest run --project client-mon-cv",
     "test:server:connectors": "vitest run --project server-connectors",
+    "test:server:rag": "vitest run --project server-rag",
+    "test:client:rag": "vitest run --project client-rag",
+    "test:server:suivitess-recorder": "vitest run --project server-suivitess-recorder",
+    "test:client:suivitess-recorder": "vitest run --project client-suivitess-recorder",
     "test:shared": "vitest run --project shared",
     "predeploy": "npm test"
   },

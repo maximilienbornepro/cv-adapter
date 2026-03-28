@@ -8,7 +8,7 @@ import { asyncHandler } from '@boilerplate/shared/server';
 import { initJiraAuth } from './jiraAuth.js';
 
 // Available apps for permissions
-const AVAILABLE_APPS = ['conges', 'roadmap', 'suivitess', 'delivery', 'mon-cv', 'admin'];
+const AVAILABLE_APPS = ['conges', 'roadmap', 'suivitess', 'delivery', 'mon-cv', 'rag', 'admin'];
 
 let pool: Pool;
 
@@ -302,7 +302,7 @@ export function createGatewayRouter(): Router {
     const params = new URLSearchParams({
       audience:      'api.atlassian.com',
       client_id:     clientId,
-      scope:         'read:jira-user read:jira-work write:jira-work read:board-scope:jira-software read:sprint:jira-software offline_access',
+      scope:         'read:jira-user read:jira-work write:jira-work read:board-scope:jira-software read:sprint:jira-software read:confluence-space.summary read:confluence-content.all read:confluence-content.body offline_access',
       redirect_uri:  redirectUri,
       state,
       response_type: 'code',

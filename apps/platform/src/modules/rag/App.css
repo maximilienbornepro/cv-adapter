@@ -1,0 +1,25 @@
+/* RAG module — full-screen chat layout
+   Layout: .app (flex col, 100vh) > nav + main (flex:1, custom variant = flex col, overflow hidden)
+   > ModuleHeader + .rag-layout (flex row, flex:1, overflow hidden)
+*/
+
+.rag-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;        /* allow flex children to shrink below content size */
+  overflow: hidden;
+}
+
+.rag-btn-primary {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-md);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+}
+
+.rag-btn-primary:hover {
+  opacity: 0.85;
+}

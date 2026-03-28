@@ -4,6 +4,8 @@ import { Layout, ModuleHeader } from '@boilerplate/shared/components';
 import { ReviewWizard } from './components/ReviewWizard/ReviewWizard';
 import { DocumentSelector } from './components/DocumentSelector/DocumentSelector';
 import { HistoryPanel } from './components/HistoryPanel/HistoryPanel';
+import { RecorderBar } from './components/RecorderBar/RecorderBar';
+import { SuggestionsPanel } from './components/SuggestionsPanel/SuggestionsPanel';
 
 function DocumentReview({ onNavigate }: { onNavigate?: (path: string) => void }) {
   const { docId } = useParams<{ docId: string }>();
@@ -12,6 +14,8 @@ function DocumentReview({ onNavigate }: { onNavigate?: (path: string) => void })
   const [saveFn, setSaveFn] = useState<(() => Promise<void>) | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showRecorder, setShowRecorder] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
@@ -54,6 +58,13 @@ function DocumentReview({ onNavigate }: { onNavigate?: (path: string) => void })
         >
           Historique
         </button>
+        <button
+          className={`module-header-btn${showRecorder ? ' module-header-btn-active' : ''}`}
+          onClick={() => setShowRecorder(v => !v)}
+          title="Connecter un call Teams"
+        >
+          Teams
+        </button>
         {saveFn && (
           <button
             className="module-header-btn"
@@ -88,14 +99,29 @@ function DocumentReview({ onNavigate }: { onNavigate?: (path: string) => void })
           Modifications non sauvegardées — Cliquez sur « Sauvegarder » pour enregistrer vos changements.
         </div>
       )}
-      <ReviewWizard
-        key={refreshKey}
-        docId={docId}
-        onBack={handleBack}
-        onCopyReady={handleCopyReady}
-        onSaveAllReady={handleSaveAllReady}
-        onUnsavedChange={setHasUnsavedChanges}
-      />
+      {docId && showRecorder && (
+        <RecorderBar
+          documentId={docId}
+          onDone={() => { setShowSuggestions(true); }}
+        />
+      )}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <ReviewWizard
+          key={refreshKey}
+          docId={docId}
+          onBack={handleBack}
+          onCopyReady={handleCopyReady}
+          onSaveAllReady={handleSaveAllReady}
+          onUnsavedChange={setHasUnsavedChanges}
+        />
+        {showSuggestions && docId && (
+          <SuggestionsPanel
+            documentId={docId}
+            onClose={() => setShowSuggestions(false)}
+            onAccepted={() => setRefreshKey(k => k + 1)}
+          />
+        )}
+      </div>
       {showHistory && docId && (
         <HistoryPanel
           documentId={docId}
