@@ -15,7 +15,7 @@ RUN cd packages/shared && npm run build
 
 # Install unified server deps
 COPY apps/platform/servers/unified/package*.json ./
-RUN sed -i '/@studio\/shared/d' package.json && \
+RUN sed -i '/@studio\/shared/d; /@boilerplate\/shared/d' package.json && \
     npm install --omit=dev && npm install tsx && \
     npm install ./packages/shared
 
