@@ -14,10 +14,35 @@ export default defineConfig({
     port: 5170,
     host: true,
     proxy: {
-      // Products API: /products-api/* → /products/api/*
-      '/products-api': {
+      // Conges API: /conges-api/* → /conges/api/*
+      '/conges-api': {
         target: UNIFIED_SERVER,
-        rewrite: (path) => path.replace(/^\/products-api/, '/products/api'),
+        rewrite: (path) => path.replace(/^\/conges-api/, '/conges/api'),
+      },
+      // Roadmap API: /roadmap-api/* → /roadmap/api/*
+      '/roadmap-api': {
+        target: UNIFIED_SERVER,
+        rewrite: (path) => path.replace(/^\/roadmap-api/, '/roadmap/api'),
+      },
+      // SuiViTess API: /suivitess-api/* → /suivitess/api/*
+      '/suivitess-api': {
+        target: UNIFIED_SERVER,
+        rewrite: (path) => path.replace(/^\/suivitess-api/, '/suivitess/api'),
+      },
+      // Delivery API: /delivery-api/* → /delivery/api/*
+      '/delivery-api': {
+        target: UNIFIED_SERVER,
+        rewrite: (path) => path.replace(/^\/delivery-api/, '/delivery/api'),
+      },
+      // Mon CV API: /mon-cv-api/* → /mon-cv/api/*
+      '/mon-cv-api': {
+        target: UNIFIED_SERVER,
+        rewrite: (path) => path.replace(/^\/mon-cv-api/, '/mon-cv/api'),
+      },
+      // RAG API: /rag-api/* → /rag/api/*
+      '/rag-api': {
+        target: UNIFIED_SERVER,
+        rewrite: (path) => path.replace(/^\/rag-api/, '/rag/api'),
       },
       // Mon CV API: /mon-cv-api/* → /mon-cv/api/*
       '/mon-cv-api': {
@@ -29,6 +54,9 @@ export default defineConfig({
         target: UNIFIED_SERVER,
       },
       '/api/admin': {
+        target: UNIFIED_SERVER,
+      },
+      '/api/connectors': {
         target: UNIFIED_SERVER,
       },
     },

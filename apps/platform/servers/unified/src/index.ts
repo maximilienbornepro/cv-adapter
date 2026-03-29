@@ -2,12 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { config } from './config.js';
-import { errorMiddleware } from '@studio/shared/server';
+import { errorMiddleware } from '@boilerplate/shared/server';
 
 // Import modules
 import { initGateway, createGatewayRouter } from './modules/gateway.js';
-import { initProducts, createProductsRouter } from './modules/products/index.js';
+import { initConges, createCongesRouter } from './modules/conges/index.js';
+import { initRoadmap, createRoadmapRouter } from './modules/roadmap/index.js';
+import { initSuivitess, createSuivitessRouter } from './modules/suivitess/index.js';
+import { initDelivery, createDeliveryRouter } from './modules/delivery/index.js';
 import { initMonCv, createMonCvRouter } from './modules/mon-cv/index.js';
+import { initConnectors, createConnectorsRouter } from './modules/connectors/index.js';
+import { initRag, createRagRouter } from './modules/rag/index.js';
 
 const app = express();
 
@@ -32,13 +37,33 @@ async function init() {
   await initGateway();
   app.use('/api', createGatewayRouter());
 
-  // Products
-  await initProducts();
-  app.use('/products/api', createProductsRouter());
+  // Conges
+  await initConges();
+  app.use('/conges/api', createCongesRouter());
+
+  // Roadmap
+  await initRoadmap();
+  app.use('/roadmap/api', createRoadmapRouter());
+
+  // SuiViTess
+  await initSuivitess();
+  app.use('/suivitess/api', createSuivitessRouter());
+
+  // Delivery
+  await initDelivery();
+  app.use('/delivery/api', createDeliveryRouter());
 
   // Mon CV
   await initMonCv();
   app.use('/mon-cv/api', createMonCvRouter());
+
+  // Connectors (platform-level feature)
+  await initConnectors();
+  app.use('/api/connectors', createConnectorsRouter());
+
+  // RAG
+  await initRag();
+  app.use('/rag/api', createRagRouter());
 
   // Error handling
   app.use(errorMiddleware);

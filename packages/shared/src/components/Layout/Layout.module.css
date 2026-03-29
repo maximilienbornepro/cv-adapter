@@ -42,12 +42,13 @@
   width: 100%;
 }
 
-/* Variant: custom */
+/* Variant: custom — full-screen modules (chat, etc.)
+   No overflow:hidden — it breaks position:sticky on ModuleHeader.
+   Child containers manage their own overflow. */
 .custom {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow: hidden;
   margin: 0;
   padding: 0;
 }

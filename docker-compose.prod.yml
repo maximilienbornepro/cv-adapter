@@ -1,7 +1,7 @@
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     container_name: studio-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -30,7 +30,21 @@ services:
       - UNIFIED_PORT=3010
       - JWT_SECRET=${JWT_SECRET}
       - APP_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/app
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - LLM_PROVIDER=${LLM_PROVIDER:-anthropic}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-scaleway}
+      - SCALEWAY_API_KEY=${SCALEWAY_API_KEY}
+      - SCALEWAY_BASE_URL=${SCALEWAY_BASE_URL}
+      - SCALEWAY_EMBEDDING_MODEL=${SCALEWAY_EMBEDDING_MODEL}
+      - SCALEWAY_CHAT_MODEL=${SCALEWAY_CHAT_MODEL}
+      - CONFLUENCE_BASE_URL=${CONFLUENCE_BASE_URL}
+      - JIRA_EMAIL=${JIRA_EMAIL}
+      - JIRA_API_TOKEN=${JIRA_API_TOKEN}
+      - JIRA_OAUTH_CLIENT_ID=${JIRA_OAUTH_CLIENT_ID}
+      - JIRA_OAUTH_CLIENT_SECRET=${JIRA_OAUTH_CLIENT_SECRET}
+      - JIRA_OAUTH_CALLBACK_URL=${JIRA_OAUTH_CALLBACK_URL}
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3010/health"]
       interval: 30s

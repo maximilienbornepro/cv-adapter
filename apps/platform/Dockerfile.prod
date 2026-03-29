@@ -8,18 +8,16 @@ RUN cd packages/shared && npm install
 COPY packages/shared/ ./packages/shared/
 RUN cd packages/shared && npm run build
 
-# Install platform deps (exclude @studio/shared, it's local)
+# Install platform deps (remove workspace ref, install shared locally)
 COPY apps/platform/package.json ./apps/platform/
-RUN cd apps/platform && \
-    sed -i '/@studio\/shared/d' package.json && \
-    npm install && \
-    npm install ../../packages/shared
+RUN sed -i '/@boilerplate\/shared/d' apps/platform/package.json && \
+    cd apps/platform && npm install && npm install ../../packages/shared
 
 # Copy platform source
 COPY apps/platform/ ./apps/platform/
 
-# Build
-RUN cd apps/platform && npm run build
+# Build (vite only, tsc type-check runs in CI/local not in Docker)
+RUN cd apps/platform && npx vite build
 
 # Production image
 FROM nginx:alpine
