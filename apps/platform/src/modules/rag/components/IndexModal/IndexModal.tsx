@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Modal } from '@boilerplate/shared/components';
+import { Modal } from '@studio/shared/components';
 import type { ConfluenceSpace, IndexingStatus, IndexedDocument } from '../../types/index.js';
 import {
   checkConfluenceConfigured,

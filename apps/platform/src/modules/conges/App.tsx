@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Layout, ToastContainer, ConfirmModal, ModuleHeader, useGatewayUser } from '@boilerplate/shared/components';
-import type { ToastData } from '@boilerplate/shared/components';
+import { Layout, ToastContainer, ConfirmModal, ModuleHeader, useGatewayUser } from '@studio/shared/components';
+import type { ToastData } from '@studio/shared/components';
 import { LeaveCalendar } from './components/LeaveCalendar/LeaveCalendar';
 import { LeaveForm } from './components/LeaveForm/LeaveForm';
 import { MemberList } from './components/MemberList/MemberList';

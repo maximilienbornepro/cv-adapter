@@ -4,7 +4,7 @@ import { RestoreModal } from './components/RestoreModal';
 import { SnapshotModal } from './components/SnapshotModal';
 import { JiraImportModal } from './components/JiraImportModal';
 import { generateIncrements2026 } from './components/BurgerMenu';
-import { Layout, ModuleHeader, LoadingSpinner } from '@boilerplate/shared/components';
+import { Layout, ModuleHeader, LoadingSpinner } from '@studio/shared/components';
 import {
   fetchTasks,
   createTask,

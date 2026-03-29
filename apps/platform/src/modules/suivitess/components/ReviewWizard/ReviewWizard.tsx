@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ToastContainer } from '@boilerplate/shared/components';
-import type { ToastData } from '@boilerplate/shared/components';
+import { ToastContainer } from '@studio/shared/components';
+import type { ToastData } from '@studio/shared/components';
 import type { Section, Change, WizardStep, Subject, DocumentWithSections, SnapshotInfo } from '../../types';
 import {
   fetchDocument,

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Layout, ModuleHeader } from '@boilerplate/shared/components';
+import { Layout, ModuleHeader } from '@studio/shared/components';
 import { ConversationList } from '../ConversationList/ConversationList.js';
 import { ChatView } from '../ChatView/ChatView.js';
 import { SourcesPanel } from '../SourcesPanel/SourcesPanel.js';

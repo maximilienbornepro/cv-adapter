@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { authMiddleware } from '../../../middleware/index.js';
-import { asyncHandler } from '@boilerplate/shared/server';
+import { asyncHandler } from '@studio/shared/server';
 import * as db from '../services/dbService.js';
 import { initPgvector } from '../services/dbService.js';
 import { getEmbeddingDimension } from '../services/embeddingService.js';

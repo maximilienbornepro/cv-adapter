@@ -3,7 +3,7 @@ import type { Task, ViewMode } from '../../types';
 import { useDragTask } from '../../hooks/useDragTask';
 import { useResizeTask } from '../../hooks/useResizeTask';
 import { calculateTaskPosition, parseDate, getColumnWidth } from '../../utils/dateUtils';
-import { ConfirmModal } from '@boilerplate/shared/components';
+import { ConfirmModal } from '@studio/shared/components';
 import styles from './TaskBar.module.css';
 
 interface TaskBarProps {

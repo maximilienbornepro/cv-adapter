@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
-import { Layout, ModuleHeader } from '@boilerplate/shared/components';
+import { Layout, ModuleHeader } from '@studio/shared/components';
 import { ReviewWizard } from './components/ReviewWizard/ReviewWizard';
 import { DocumentSelector } from './components/DocumentSelector/DocumentSelector';
 import { HistoryPanel } from './components/HistoryPanel/HistoryPanel';

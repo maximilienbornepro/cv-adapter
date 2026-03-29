@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { config } from '../config.js';
 import { authMiddleware, adminMiddleware } from '../middleware/index.js';
-import { asyncHandler } from '@boilerplate/shared/server';
+import { asyncHandler } from '@studio/shared/server';
 import { initJiraAuth } from './jiraAuth.js';
 
 // Available apps for permissions

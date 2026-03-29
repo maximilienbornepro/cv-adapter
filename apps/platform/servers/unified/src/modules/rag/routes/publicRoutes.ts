@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { asyncHandler } from '@boilerplate/shared/server';
+import { asyncHandler } from '@studio/shared/server';
 import * as db from '../services/dbService.js';
 import { streamRagResponse, generateSuggestedQuestions } from '../services/ragService.js';
 

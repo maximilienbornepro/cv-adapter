@@ -44,11 +44,6 @@ export default defineConfig({
         target: UNIFIED_SERVER,
         rewrite: (path) => path.replace(/^\/rag-api/, '/rag/api'),
       },
-      // Mon CV API: /mon-cv-api/* → /mon-cv/api/*
-      '/mon-cv-api': {
-        target: UNIFIED_SERVER,
-        rewrite: (path) => path.replace(/^\/mon-cv-api/, '/mon-cv/api'),
-      },
       // Gateway APIs (auth, admin)
       '/api/auth': {
         target: UNIFIED_SERVER,

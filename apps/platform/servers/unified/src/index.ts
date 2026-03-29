@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { config } from './config.js';
-import { errorMiddleware } from '@boilerplate/shared/server';
+import { errorMiddleware } from '@studio/shared/server';
 
 // Import modules
 import { initGateway, createGatewayRouter } from './modules/gateway.js';

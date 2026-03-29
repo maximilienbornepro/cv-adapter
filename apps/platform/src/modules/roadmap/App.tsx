@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Layout, LoadingSpinner, ModuleHeader } from '@boilerplate/shared/components';
+import { Layout, LoadingSpinner, ModuleHeader } from '@studio/shared/components';
 import type { Planning, Task, Dependency, ViewMode, Marker, PlanningFormData } from './types';
 import * as api from './services/api';
 import { getNextColor } from './utils/taskUtils';

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal } from '@boilerplate/shared/components';
+import { Modal } from '@studio/shared/components';
 import type { Member, Leave, LeaveFormData } from '../../types';
 import styles from './LeaveForm.module.css';
 

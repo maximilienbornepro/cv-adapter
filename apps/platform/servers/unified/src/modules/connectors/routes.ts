@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { config } from '../../config.js';
 import { authMiddleware } from '../../middleware/index.js';
-import { asyncHandler } from '@boilerplate/shared/server';
+import { asyncHandler } from '@studio/shared/server';
 import * as db from './dbService.js';
 
 export function createConnectorsRoutes(): Router {

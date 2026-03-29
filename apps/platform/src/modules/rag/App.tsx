@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Layout, ModuleHeader, ConfirmModal } from '@boilerplate/shared/components';
+import { Layout, ModuleHeader, ConfirmModal } from '@studio/shared/components';
 import { RagList } from './components/RagList/RagList.js';
 import { RagForm } from './components/RagForm/RagForm.js';
 import { RagDetail } from './components/RagDetail/RagDetail.js';

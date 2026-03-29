@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Modal } from '@boilerplate/shared/components';
+import { Modal } from '@studio/shared/components';
 import type { Planning, PlanningFormData } from '../../types';
 import styles from './PlanningList.module.css';
 
