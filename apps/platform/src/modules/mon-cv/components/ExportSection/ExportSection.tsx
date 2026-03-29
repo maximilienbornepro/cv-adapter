@@ -24,7 +24,7 @@ export function ExportSection({ cvData }: ExportSectionProps) {
       window.open(url, '_blank');
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la génération de l\'aperçu');
+      setError(err.message || 'Erreur lors de la generation de l\'apercu');
     } finally {
       setLoadingPreview(false);
     }
@@ -45,7 +45,7 @@ export function ExportSection({ cvData }: ExportSectionProps) {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Erreur lors de la génération du PDF');
+        throw new Error(data.error || 'Erreur lors de la generation du PDF');
       }
 
       const blob = await response.blob();
@@ -53,7 +53,7 @@ export function ExportSection({ cvData }: ExportSectionProps) {
       window.open(url, '_blank');
       setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la génération du PDF');
+      setError(err.message || 'Erreur lors de la generation du PDF');
     } finally {
       setLoadingPDF(false);
     }
@@ -69,7 +69,7 @@ export function ExportSection({ cvData }: ExportSectionProps) {
         : 'CV.pdf';
       await downloadPDF(cvData, filename);
     } catch (err: any) {
-      setError(err.message || 'Erreur lors du téléchargement du PDF');
+      setError(err.message || 'Erreur lors du telechargement du PDF');
     } finally {
       setLoadingPDF(false);
     }
@@ -90,9 +90,9 @@ export function ExportSection({ cvData }: ExportSectionProps) {
           {loadingPreview ? (
             <LoadingSpinner size="small" />
           ) : (
-            <span className="btn-icon">👁</span>
+            <span className="btn-icon">&#x1F441;</span>
           )}
-          <span>Aperçu</span>
+          <span>Apercu</span>
         </button>
 
         <button
@@ -103,9 +103,9 @@ export function ExportSection({ cvData }: ExportSectionProps) {
           {loadingPDF ? (
             <LoadingSpinner size="small" />
           ) : (
-            <span className="btn-icon">📄</span>
+            <span className="btn-icon">&#x1F4C4;</span>
           )}
-          <span>Aperçu PDF</span>
+          <span>Apercu PDF</span>
         </button>
 
         <button
@@ -116,14 +116,14 @@ export function ExportSection({ cvData }: ExportSectionProps) {
           {loadingPDF ? (
             <LoadingSpinner size="small" />
           ) : (
-            <span className="btn-icon">⬇</span>
+            <span className="btn-icon">&#x2B07;</span>
           )}
-          <span>Télécharger PDF</span>
+          <span>Telecharger PDF</span>
         </button>
       </div>
 
       <p className="export-hint">
-        L'aperçu est instantané. La génération PDF peut prendre quelques secondes.
+        L'apercu est instantane. La generation PDF peut prendre quelques secondes.
       </p>
     </div>
   );

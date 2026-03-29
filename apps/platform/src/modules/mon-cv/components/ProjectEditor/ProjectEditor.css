@@ -38,7 +38,7 @@
   background: var(--bg-primary);
   color: var(--text-primary);
   font-size: var(--font-size-sm);
-  font-family: var(--font-family);
+  font-family: var(--font-family-mono);
 }
 
 .project-editor-title {

@@ -5,7 +5,7 @@
 }
 
 .tag-editor-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-xs);
   color: var(--text-muted);
   text-transform: uppercase;
@@ -33,7 +33,7 @@
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   padding: 0.2em 0.5em;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
   color: var(--text-primary);
 }
@@ -49,14 +49,14 @@
 }
 
 .tag-editor-remove:hover {
-  color: var(--color-error);
+  color: var(--error);
 }
 
 .tag-editor-input {
   width: 100%;
   border: none;
   background: transparent;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
   color: var(--text-primary);
   outline: none;

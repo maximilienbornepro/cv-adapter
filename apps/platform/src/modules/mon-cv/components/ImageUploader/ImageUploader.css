@@ -5,7 +5,7 @@
 }
 
 .image-uploader-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-xs);
   color: var(--text-muted);
   text-transform: uppercase;
@@ -67,7 +67,7 @@
 }
 
 .image-uploader-text {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-xs);
   color: var(--text-muted);
 }
@@ -77,7 +77,7 @@
 }
 
 .image-uploader-loading {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
   color: var(--text-muted);
 }
@@ -100,7 +100,7 @@
   right: 4px;
   width: 20px;
   height: 20px;
-  background: var(--color-error);
+  background: var(--error);
   border: none;
   color: white;
   cursor: pointer;
@@ -118,7 +118,7 @@
 }
 
 .image-uploader-error {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-xs);
-  color: var(--color-error);
+  color: var(--error);
 }

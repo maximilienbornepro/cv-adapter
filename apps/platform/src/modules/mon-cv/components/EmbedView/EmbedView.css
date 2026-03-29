@@ -40,5 +40,5 @@
 }
 
 .cv-embed-error {
-  color: var(--color-error, #dc2626);
+  color: var(--error, #dc2626);
 }

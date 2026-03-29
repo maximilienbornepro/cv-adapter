@@ -14,7 +14,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
   color: var(--text-primary);
   text-align: left;

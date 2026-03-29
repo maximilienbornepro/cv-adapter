@@ -16,11 +16,8 @@ interface MonCvAppProps {
   embedId?: string;
 }
 
-export default function MonCvApp({ onNavigate, embedMode, embedId }: MonCvAppProps) {
-  // Embed mode: render minimal view
-  if (embedMode && embedId) {
-    return <EmbedView itemId={embedId} />;
-  }
+// Inner component — always mounts with hooks (no conditional early return)
+function MonCvMain({ onNavigate }: { onNavigate?: (path: string) => void }) {
   const [view, setView] = useState<View>('profile');
   const [cv, setCv] = useState<CV | null>(null);
 
@@ -79,4 +76,13 @@ export default function MonCvApp({ onNavigate, embedMode, embedId }: MonCvAppPro
       {renderContent()}
     </Layout>
   );
+}
+
+export default function MonCvApp({ onNavigate, embedMode, embedId }: MonCvAppProps) {
+  // Embed mode: render minimal view (no hooks needed)
+  if (embedMode && embedId) {
+    return <EmbedView itemId={embedId} />;
+  }
+  // Normal mode: delegate to inner component that manages all hooks
+  return <MonCvMain onNavigate={onNavigate} />;
 }

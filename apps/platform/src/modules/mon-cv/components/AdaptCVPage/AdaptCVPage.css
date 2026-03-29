@@ -27,7 +27,7 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: 0.875rem;
   resize: vertical;
   min-height: 100px;
@@ -67,7 +67,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-lg);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: 0.875rem;
   cursor: pointer;
   border: 1px solid var(--border-color);

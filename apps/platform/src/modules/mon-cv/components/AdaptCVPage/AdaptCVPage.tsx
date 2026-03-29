@@ -51,15 +51,15 @@ export function AdaptCVPage({ cvData, onAdapt, onCancel }: AdaptCVPageProps) {
   if (result) {
     return (
       <div className="adapt-page">
-        <ModuleHeader title="Résultat de l'adaptation" onBack={handleRetry} />
+        <ModuleHeader title="Resultat de l'adaptation" onBack={handleRetry} />
 
         <div className="adapt-result">
           <div className="adapt-changes">
-            <h3>Modifications apportées</h3>
+            <h3>Modifications apportees</h3>
 
             {result.changes.newMissions.length > 0 && (
               <div className="change-section">
-                <h4>Nouvelles missions ajoutées</h4>
+                <h4>Nouvelles missions ajoutees</h4>
                 <ul className="added-list">
                   {result.changes.newMissions.map((mission, idx) => (
                     <li key={idx} className="added-item">{mission}</li>
@@ -70,7 +70,7 @@ export function AdaptCVPage({ cvData, onAdapt, onCancel }: AdaptCVPageProps) {
 
             {result.changes.newProject && (
               <div className="change-section">
-                <h4>Nouveau projet ajouté</h4>
+                <h4>Nouveau projet ajoute</h4>
                 <div className="added-project">
                   <strong>{result.changes.newProject.title}</strong>
                   {result.changes.newProject.description && (
@@ -82,7 +82,7 @@ export function AdaptCVPage({ cvData, onAdapt, onCancel }: AdaptCVPageProps) {
 
             {Object.keys(result.changes.addedSkills).length > 0 && (
               <div className="change-section">
-                <h4>Compétences ajoutées</h4>
+                <h4>Competences ajoutees</h4>
                 <div className="added-skills">
                   {Object.entries(result.changes.addedSkills).map(([category, skills]) => (
                     <div key={category} className="skill-category">
@@ -99,13 +99,13 @@ export function AdaptCVPage({ cvData, onAdapt, onCancel }: AdaptCVPageProps) {
             {result.changes.newMissions.length === 0 &&
              !result.changes.newProject &&
              Object.keys(result.changes.addedSkills).length === 0 && (
-              <p className="no-changes">Aucune modification significative apportée.</p>
+              <p className="no-changes">Aucune modification significative apportee.</p>
             )}
           </div>
 
           <div className="adapt-actions">
             <button className="btn btn-secondary" onClick={handleRetry}>
-              Modifier les paramètres
+              Modifier les parametres
             </button>
             <button className="btn btn-primary" onClick={handleValidate}>
               Valider et appliquer
@@ -135,23 +135,23 @@ export function AdaptCVPage({ cvData, onAdapt, onCancel }: AdaptCVPageProps) {
             disabled={loading}
           />
           <p className="form-hint">
-            Copiez-collez le texte de l'offre d'emploi. L'IA analysera les compétences requises
-            et adaptera votre CV en conséquence.
+            Copiez-collez le texte de l'offre d'emploi. L'IA analysera les competences requises
+            et adaptera votre CV en consequence.
           </p>
         </div>
 
         <div className="form-section">
-          <label htmlFor="instructions">Instructions personnalisées (optionnel)</label>
+          <label htmlFor="instructions">Instructions personnalisees (optionnel)</label>
           <textarea
             id="instructions"
             value={customInstructions}
             onChange={(e) => setCustomInstructions(e.target.value)}
-            placeholder="Ex: Mettre l'accent sur l'expérience en management..."
+            placeholder="Ex: Mettre l'accent sur l'experience en management..."
             rows={4}
             disabled={loading}
           />
           <p className="form-hint">
-            Ajoutez des instructions spécifiques pour guider l'adaptation.
+            Ajoutez des instructions specifiques pour guider l'adaptation.
           </p>
         </div>
 
@@ -180,11 +180,11 @@ export function AdaptCVPage({ cvData, onAdapt, onCancel }: AdaptCVPageProps) {
         <div className="adapt-info">
           <h4>Comment fonctionne l'adaptation ?</h4>
           <ul>
-            <li>L'IA analyse l'offre d'emploi pour identifier les compétences clés</li>
-            <li>1-2 nouvelles missions sont ajoutées à votre première expérience</li>
-            <li>Un nouveau projet pertinent peut être généré</li>
-            <li>Des compétences ciblées sont ajoutées (max 1 par catégorie)</li>
-            <li>Vos données originales sont préservées</li>
+            <li>L'IA analyse l'offre d'emploi pour identifier les competences cles</li>
+            <li>1-2 nouvelles missions sont ajoutees a votre premiere experience</li>
+            <li>Un nouveau projet pertinent peut etre genere</li>
+            <li>Des competences ciblees sont ajoutees (max 1 par categorie)</li>
+            <li>Vos donnees originales sont preservees</li>
           </ul>
         </div>
       </div>

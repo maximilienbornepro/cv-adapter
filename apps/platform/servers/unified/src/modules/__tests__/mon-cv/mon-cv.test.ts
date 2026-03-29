@@ -206,7 +206,6 @@ describe('Mon CV - Constants', () => {
 describe('Mon CV - PDF Service', () => {
   describe('generateFilename', () => {
     it('should generate filename from CV name', () => {
-      // Test logic for filename generation
       const generateFilename = (cvData: CVData): string => {
         const name = cvData.name?.trim();
         if (!name) {
@@ -289,7 +288,6 @@ describe('Mon CV - Autofill Service', () => {
         label: 'Email',
       };
 
-      // Simulate detectFieldType logic
       const directTypes = ['email', 'tel'];
       const isDirectType = directTypes.includes(field.type);
 

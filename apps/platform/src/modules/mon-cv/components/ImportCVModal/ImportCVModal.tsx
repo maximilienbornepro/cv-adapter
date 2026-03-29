@@ -167,7 +167,7 @@ export function ImportCVModal({ onClose, onImport }: ImportCVModalProps) {
                 </div>
               ) : (
                 <>
-                  <span className="import-cv-icon">📄</span>
+                  <span className="import-cv-icon">&#x1F4C4;</span>
                   <span className="import-cv-text">
                     Glisser-deposer ou cliquer pour selectionner
                   </span>

@@ -34,13 +34,13 @@
 }
 
 .import-cv-text {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
   color: var(--text-primary);
 }
 
 .import-cv-formats {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-xs);
   color: var(--text-muted);
 }
@@ -70,10 +70,10 @@
 }
 
 .import-cv-error {
-  background: var(--color-error);
+  background: var(--error);
   color: white;
   padding: var(--spacing-sm);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
 }
 
@@ -88,7 +88,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
   color: var(--text-primary);
 }
@@ -102,7 +102,7 @@
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   padding: var(--spacing-xs) var(--spacing-sm);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-xs);
   color: var(--text-muted);
   cursor: pointer;
@@ -149,13 +149,13 @@
 
 .import-cv-section-name {
   flex: 1;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
   color: var(--text-primary);
 }
 
 .import-cv-badge {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-xs);
   padding: 0.1em 0.4em;
   text-transform: uppercase;
@@ -187,7 +187,7 @@
 
 .import-cv-btn {
   padding: var(--spacing-sm) var(--spacing-md);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
   cursor: pointer;
   border: 1px solid var(--border-color);

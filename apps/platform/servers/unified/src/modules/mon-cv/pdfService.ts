@@ -89,9 +89,9 @@ function generateSidebarHTML(cvData: CVData): string {
       : '';
 
   const skillSections = [
-    { title: 'Compétences', items: cvData.competences },
+    { title: 'Competences', items: cvData.competences },
     { title: 'Outils', items: cvData.outils },
-    { title: 'Développement', items: cvData.dev },
+    { title: 'Developpement', items: cvData.dev },
     { title: 'Frameworks', items: cvData.frameworks },
     { title: 'Solutions', items: cvData.solutions },
   ]
@@ -248,7 +248,7 @@ function generateAwardsHTML(awards: Award[]): string {
 function generateMainHTML(cvData: CVData): string {
   return `
     <main class="main-content">
-      <h2 class="main-section-title">Expériences Professionnelles</h2>
+      <h2 class="main-section-title">Experiences Professionnelles</h2>
       ${(cvData.experiences || []).map(exp => generateExperienceHTML(exp)).join('')}
       ${generateFormationsHTML(cvData.formations || [])}
       ${generateSideProjectsHTML(cvData.sideProjects)}

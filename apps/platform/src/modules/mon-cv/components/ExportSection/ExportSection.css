@@ -37,7 +37,7 @@
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;

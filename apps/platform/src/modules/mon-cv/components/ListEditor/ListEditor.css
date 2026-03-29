@@ -5,7 +5,7 @@
 }
 
 .list-editor-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-xs);
   color: var(--text-muted);
   text-transform: uppercase;
@@ -29,7 +29,7 @@
 
 .list-editor-item-text {
   flex: 1;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
   color: var(--text-primary);
   cursor: text;
@@ -50,7 +50,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
 }
 
@@ -65,7 +65,7 @@
 }
 
 .list-editor-btn-danger:hover:not(:disabled) {
-  color: var(--color-error);
+  color: var(--error);
 }
 
 .list-editor-edit-input {
@@ -73,7 +73,7 @@
   background: var(--bg-primary);
   border: 1px solid var(--accent-primary);
   padding: var(--spacing-xs);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
   color: var(--text-primary);
   outline: none;
@@ -89,7 +89,7 @@
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   padding: var(--spacing-sm);
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-sm);
   color: var(--text-primary);
   outline: none;
@@ -113,7 +113,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   font-size: var(--text-lg);
   font-weight: 600;
 }
